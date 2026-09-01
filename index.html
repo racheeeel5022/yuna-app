@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<title>윤아의 하루</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+<style>
+  :root{
+    --ink:#3a3350; --ink2:#8b84a3; --line:#eae6f5; --paper:#f9f7fe;
+    --card:#ffffff; --violet:#8b6ee0; --violet-soft:#f0ebfd; --violet-ink:#6849c0;
+    --gold:#c99a2e; --gold-soft:#fbf1d8; --ivory:#f2eefa;
+    --done:#5aa672; --done-soft:#e6f2e8; --red:#e0728a; --red-soft:#fbe6ec;
+    --shadow:0 2px 14px rgba(120,90,200,.09);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    background:var(--paper);color:var(--ink);line-height:1.5;padding-bottom:90px;}
+  .wrap{max-width:520px;margin:0 auto;padding:0 16px;}
+
+  header{padding:20px 18px 8px;position:relative;}
+  .hello-row{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .hello-txt{text-align:left;}
+  .hello-hi{font-size:21px;font-weight:800;color:var(--ink);letter-spacing:-.02em;line-height:1.2;}
+  .hello-hi .spark{font-size:17px;}
+  .hello-date{font-size:12.5px;color:var(--ink2);margin-top:4px;font-weight:600;letter-spacing:-.01em;}
+  .hello-date .dow{color:var(--violet);font-weight:800;}
+  .avatar-img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:2.5px solid #fff;
+    box-shadow:0 3px 10px rgba(109,92,224,.22);flex:0 0 auto;}
+  .weekstrip{display:flex;gap:2px;margin-top:16px;justify-content:space-between;}
+  .weekstrip .wday{flex:1;display:flex;flex-direction:column;align-items:center;gap:9px;}
+  .weekstrip .wl{font-size:12px;font-weight:600;color:#b0a89c;letter-spacing:.01em;}
+  .weekstrip .today .wl{color:var(--ink);font-weight:700;}
+  .weekstrip .wn{width:38px;height:38px;border-radius:50%;background:#fff;border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--ink);}
+  .weekstrip .today .wn{background:var(--violet);border-color:var(--violet);color:#fff;box-shadow:0 5px 14px rgba(139,110,224,.35);}
+  .whoami{position:absolute;right:16px;top:22px;font-size:12px;color:var(--violet-ink);
+    background:var(--violet-soft);border-radius:20px;padding:5px 11px;font-weight:700;}
+
+  .progress-card{background:linear-gradient(135deg,#8b6ee0 0%,#a68ceb 100%);
+    color:#fff;border-radius:24px;padding:20px 22px;margin:6px 0 16px;box-shadow:0 10px 24px rgba(139,110,224,.28);}
+  .progress-card .lab{font-size:13px;font-weight:600;opacity:.92;letter-spacing:.01em;}
+  .progress-card .big{font-size:32px;font-weight:800;margin-top:3px;letter-spacing:-.02em;}
+  .bar{height:7px;background:rgba(255,255,255,.32);border-radius:8px;margin-top:14px;overflow:hidden;}
+  .bar > i{display:block;height:100%;background:#fff;border-radius:8px;width:0;transition:width .5s ease;}
+
+  .park-btn{width:100%;display:flex;align-items:center;gap:13px;background:#fff;border:1.5px solid #f4e4c0;border-radius:20px;padding:15px 17px;margin-bottom:14px;font-family:inherit;text-align:left;box-shadow:0 3px 14px rgba(200,160,70,.1);position:relative;}
+  .park-ico{width:40px;height:40px;flex:0 0 auto;border-radius:13px;background:#fdf2d8;display:flex;align-items:center;justify-content:center;font-size:20px;}
+  .park-t{font-size:14.5px;font-weight:700;color:var(--ink);letter-spacing:-.01em;}
+  .park-s{font-size:11.5px;color:var(--ink2);margin-top:2px;line-height:1.4;}
+  .park-badge{position:absolute;top:-6px;right:-6px;background:#f0885f;color:#fff;font-size:12px;font-weight:700;min-width:22px;height:22px;border-radius:11px;display:flex;align-items:center;justify-content:center;padding:0 6px;box-shadow:0 2px 6px rgba(240,136,95,.4);}
+  .park-list{margin-top:6px;}
+  .park-item{display:flex;align-items:flex-start;gap:10px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px;}
+  .park-item .pt{flex:1;font-size:14px;color:var(--ink);line-height:1.5;}
+  .park-item .px{flex:0 0 auto;width:26px;height:26px;border-radius:9px;border:0;background:var(--red-soft);color:var(--red);font-size:15px;font-weight:700;}
+
+  .tabs{display:flex;gap:4px;margin:0 0 18px;background:#f1ebdf;padding:5px;border-radius:16px;}
+
+  .viewing-banner{background:var(--violet-soft);color:var(--violet-ink);border-radius:14px;padding:11px 14px;margin-bottom:12px;font-size:13px;font-weight:600;text-align:center;cursor:pointer;}
+  .viewing-banner b{font-weight:800;}
+  .ysum{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px 17px;margin-bottom:14px;box-shadow:0 2px 12px rgba(120,90,200,.05);}
+  .ysum-h{font-size:15px;font-weight:800;color:var(--ink);letter-spacing:-.01em;margin-bottom:10px;}
+  .ysum-row{display:flex;gap:8px;margin-bottom:6px;}
+  .ysum-tag{font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;}
+  .ysum-tag.ok{background:var(--done-soft);color:var(--done);}
+  .ysum-tag.no{background:var(--red-soft);color:var(--red);}
+  .ysum-sub{font-size:12.5px;font-weight:700;color:var(--ink2);margin:10px 0 4px;}
+  .ysum-item{font-size:13.5px;line-height:1.6;padding-left:2px;}
+  .ysum-item.miss{color:var(--red);}
+  .ysum-item.ok{color:var(--ink2);}
+
+  .cheer-pop{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%) scale(.8);z-index:80;
+    opacity:0;pointer-events:none;transition:opacity .25s cubic-bezier(.34,1.56,.64,1),transform .25s cubic-bezier(.34,1.56,.64,1);}
+  .cheer-pop.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
+  .cheer-pop-inner{background:#fff;border:1.5px solid #f6e6c4;
+    border-radius:26px;padding:24px 28px;text-align:center;box-shadow:0 16px 40px rgba(200,160,70,.28);max-width:290px;}
+  .cheer-pop-em{font-size:38px;animation:bounce .5s ease;}
+  .cheer-pop-en{font-weight:700;font-size:17px;color:#e0a83e;
+    margin-top:8px;line-height:1.35;letter-spacing:-.01em;}
+  .cheer-pop-ko{font-size:14px;font-weight:600;color:var(--ink2);margin-top:8px;line-height:1.45;}
+  @keyframes bounce{0%{transform:scale(.5)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+  .tabs button{flex:1;border:0;background:transparent;color:var(--ink2);font-size:12.5px;
+    font-weight:600;padding:10px 4px;border-radius:12px;font-family:inherit;transition:.15s;letter-spacing:-.01em;}
+  .tabs button.on{background:#fff;color:var(--violet-ink);box-shadow:0 2px 8px rgba(160,130,80,.12);font-weight:700;}
+
+  .sec-title{font-size:13px;font-weight:800;color:var(--ink2);margin:18px 4px 8px;
+    display:flex;align-items:center;gap:6px;letter-spacing:.02em;}
+
+  .item{display:flex;align-items:center;gap:13px;background:#fff;border:1px solid var(--line);
+    border-radius:20px;padding:13px 15px;margin-bottom:10px;box-shadow:0 2px 12px rgba(160,130,80,.05);transition:.15s;}
+  .item.cat-v,.item.cat-g,.item.cat-r{background:#fff;}
+  .item.done{background:#f4faf5;border-color:#d3ecd8;}
+  .item.carry{background:#fff;border-color:#f2c9b5;}
+  .icobox{flex:0 0 auto;width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:21px;}
+  .time-col{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:3px;padding-left:6px;}
+  .time-col span{font-size:11px;font-weight:600;color:#a99f90;white-space:nowrap;}
+  .kk-btn{margin-top:7px;display:inline-flex;align-items:center;gap:5px;background:#f2eee2;color:#8a7a4a;border:0;border-radius:20px;padding:5px 11px;font-size:11.5px;font-weight:700;font-family:inherit;}
+  .carrytag{display:inline-block;font-size:11px;font-weight:800;color:var(--red);background:var(--red-soft);padding:2px 8px;border-radius:20px;margin:4px 0 2px;}
+  .check{flex:0 0 auto;width:24px;height:24px;border-radius:50%;border:2px solid #e2dccf;
+    background:#fff;display:flex;align-items:center;justify-content:center;transition:.15s;}
+  .item.done .check{background:var(--violet);border-color:var(--violet);}
+  .check svg{width:15px;height:15px;stroke:#fff;stroke-width:3.2;fill:none;
+    stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:.15s;}
+  .item.done .check svg{opacity:1;}
+  .item .body{flex:1;min-width:0;}
+  .item .ttl{font-size:15px;font-weight:700;letter-spacing:-.01em;line-height:1.35;}
+  .badge-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px;}
+  .item{align-items:flex-start;}
+  .time-col{align-self:center;}
+  .ttl-row{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+  .dd{flex:0 0 auto;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;letter-spacing:.01em;}
+  .dd-over{background:var(--red);color:#fff;}
+  .dd-today{background:var(--red);color:#fff;}
+  .dd-soon{background:#ffe4c4;color:#b46a12;}
+  .dd-far{background:var(--violet-soft);color:var(--violet-ink);}
+  .due{font-size:12px;color:var(--ink2);margin-top:3px;font-weight:600;}
+  .item.done .ttl{color:var(--done);text-decoration:line-through;text-decoration-color:rgba(47,158,111,.5);}
+  .item .rng{font-size:13px;color:var(--ink2);margin-top:2px;word-break:break-word;}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:4px 11px;border-radius:20px;margin-top:6px;}
+  .chips-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .timechip{display:inline-block;font-size:11px;font-weight:700;padding:4px 11px;border-radius:20px;margin-top:6px;background:#fff;color:#77839c;border:1px solid #e7e9f2;}
+  .tag.v{background:#e7ddfb;color:#6849c0;}
+  .tag.g{background:#cfe8cf;color:#3f8a5e;}
+  .tag.r{background:#f8d3de;color:#c85172;}
+  .locked .check{opacity:.35;}
+
+  .grid-cell .item{cursor:default;}
+  .day-block{margin-bottom:6px;}
+  .day-name{font-size:13px;font-weight:800;color:var(--violet-ink);margin:14px 4px 6px;}
+  .slot{display:flex;gap:10px;font-size:14px;padding:7px 12px;border-bottom:1px dashed var(--line);}
+  .slot .t{flex:0 0 82px;color:var(--ink2);font-variant-numeric:tabular-nums;font-size:13px;}
+  .slot .a{flex:1;font-weight:600;}
+
+  .backlog .item{align-items:center;}
+  .backlog .pct{flex:0 0 auto;font-size:13px;font-weight:800;color:var(--red);}
+  .mini-bar{height:6px;background:var(--red-soft);border-radius:6px;margin-top:7px;overflow:hidden;}
+  .mini-bar > i{display:block;height:100%;background:var(--red);border-radius:6px;transition:width .4s;}
+
+  .empty{text-align:center;color:var(--ink2);font-size:14px;padding:30px 10px;}
+  .celebrate{text-align:center;padding:26px 10px;}
+  .celebrate .em{font-size:40px;}
+  .celebrate p{font-weight:800;color:var(--done);margin:6px 0 0;font-size:16px;}
+
+  .role-bar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.94);
+    backdrop-filter:saturate(160%) blur(10px);border-top:1px solid var(--line);
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px;justify-content:center;z-index:40;}
+  .role-bar button{flex:1;max-width:150px;border:1px solid var(--line);background:#fff;
+    border-radius:12px;padding:11px;font-size:13px;font-weight:700;color:var(--ink2);font-family:inherit;}
+  .role-bar button.on{background:var(--violet);color:#fff;border-color:var(--violet);}
+
+  .fab{position:fixed;right:18px;bottom:calc(70px + env(safe-area-inset-bottom));width:54px;height:54px;
+    border-radius:50%;background:var(--violet);color:#fff;border:0;font-size:26px;box-shadow:0 6px 18px rgba(109,92,224,.4);
+    display:none;align-items:center;justify-content:center;z-index:45;}
+  .fab.show{display:flex;}
+
+  .modal-bg{position:fixed;inset:0;background:rgba(43,39,64,.45);display:none;align-items:flex-end;
+    justify-content:center;z-index:60;}
+  .modal-bg.show{display:flex;}
+  .modal{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:520px;padding:20px 18px calc(20px + env(safe-area-inset-bottom));
+    max-height:86vh;overflow:auto;}
+  .modal h3{margin:0 0 14px;font-size:17px;font-weight:800;}
+  .modal label{display:block;font-size:12px;font-weight:700;color:var(--ink2);margin:12px 0 5px;}
+  .modal input,.modal select,.modal textarea{width:100%;border:1px solid var(--line);border-radius:11px;
+    padding:11px;font-size:15px;font-family:inherit;background:var(--paper);}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+  .chips button{border:1px solid var(--line);background:#fff;border-radius:20px;padding:7px 12px;
+    font-size:13px;font-weight:700;color:var(--ink2);font-family:inherit;}
+  .chips button.on{background:var(--violet);color:#fff;border-color:var(--violet);}
+  .m-actions{display:flex;gap:8px;margin-top:18px;}
+  .m-actions button{flex:1;border-radius:12px;padding:13px;font-size:15px;font-weight:800;border:0;font-family:inherit;}
+  .btn-save{background:var(--violet);color:#fff;}
+  .btn-cancel{background:var(--ivory);color:var(--ink2);}
+  .admin-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+  .admin-row .x{flex:0 0 auto;width:30px;height:30px;border-radius:8px;border:0;background:var(--red-soft);
+    color:var(--red);font-size:16px;font-weight:800;}
+  .status{text-align:center;font-size:12px;color:var(--ink2);padding:6px;}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#c9c4d8;margin-right:5px;vertical-align:middle;}
+  .dot.live{background:var(--done);}
+  .setup{background:var(--gold-soft);border:1px solid #eeddb0;border-radius:14px;padding:14px;margin:14px 0;font-size:13px;color:#7a5f18;line-height:1.6;}
+  .setup b{color:#5f4a11;}
+</style>
+</head>
+<body>
+<header>
+  <div class="hello-row">
+    <div class="hello-txt">
+      <div class="hello-hi">Hello, radiant Yuna! <span class="spark">✨</span></div>
+      <div class="hello-date" id="dateLine">—</div>
+    </div>
+    <img class="avatar-img" id="avatarImg" src="data:image/jpeg;base64,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" alt="윤아" />
+  </div>
+  <div class="weekstrip" id="weekstrip"></div>
+  <div class="whoami" id="whoami" style="display:none">윤아</div>
+</header>
+
+<div class="wrap">
+  <div class="progress-card">
+    <div class="lab" id="progLab">오늘 할 일</div>
+    <div class="big"><span id="progDone">0</span> / <span id="progTotal">0</span> 완료</div>
+    <div class="bar"><i id="progBar"></i></div>
+  </div>
+
+  <a href="https://classroom.google.com" onclick="openClassroom(event)" style="text-decoration:none;">
+    <div style="display:flex;align-items:center;gap:13px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:15px 17px;margin-bottom:14px;box-shadow:0 2px 12px rgba(160,130,80,.05);">
+      <div style="flex:0 0 auto;width:40px;height:40px;border-radius:13px;background:#e8f3ec;display:flex;align-items:center;justify-content:center;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3L2 8l10 5 8-4v6h2V8L12 3z" fill="#5aa672"/><path d="M6 11v4c0 1.5 2.7 3 6 3s6-1.5 6-3v-4l-6 3-6-3z" fill="#7bc094"/></svg>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:14.5px;font-weight:700;color:var(--ink);letter-spacing:-.01em;">클래스룸 열기</div>
+        <div style="font-size:11.5px;color:var(--ink2);margin-top:2px;">오늘 숙제 실시간 확인</div>
+      </div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9c0b2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+  </a>
+
+  <button class="park-btn" onclick="openPark()">
+    <div class="park-ico">🅿️</div>
+    <div class="park-txt">
+      <div class="park-t">딴생각 주차장</div>
+      <div class="park-s">딴생각 나면 여기 잠깐 세워두고 다시 집중!</div>
+    </div>
+    <span class="park-badge" id="parkBadge" style="display:none">0</span>
+  </button>
+
+  <div class="tabs">
+    <button class="on" data-tab="today" onclick="switchTab('today')">오늘 할 일</button>
+    <button data-tab="done" onclick="switchTab('done')">완료</button>
+    <button data-tab="week" onclick="switchTab('week')">주간 시간표</button>
+    <button data-tab="backlog" onclick="switchTab('backlog')">밀린 과제</button>
+  </div>
+
+  <div id="parentBar" style="display:none;margin-bottom:16px;">
+    <button onclick="resetToFile(this)" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--violet-soft);color:var(--violet-ink);border:1px solid #d9d1f7;border-radius:14px;padding:13px;font-size:14px;font-weight:800;font-family:inherit;">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+      <span>이 파일의 최신 숙제로 새로고침</span>
+    </button>
+    <div style="font-size:12px;color:var(--ink2);text-align:center;margin-top:7px;line-height:1.5;">Claude가 새 파일을 올린 뒤 한 번 누르세요.<br>완료 체크는 유지되고 숙제 목록만 최신으로 바뀝니다</div>
+  </div>
+
+  <div id="view-today"></div>
+  <div id="view-done" style="display:none"></div>
+  <div id="view-week" style="display:none"></div>
+  <div id="view-backlog" style="display:none"></div>
+
+  <div class="status"><span class="dot" id="liveDot"></span><span id="statusText">연결 중…</span></div>
+</div>
+
+<button class="fab" id="fab" onclick="openAdd()">+</button>
+
+<div class="role-bar">
+  <button class="on" id="role-yuna" onclick="setRole('yuna')">윤아 (체크)</button>
+  <button id="role-parent" onclick="setRole('parent')">엄마·아빠 (보기)</button>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal" id="modalBox"></div>
+</div>
+
+<script type="module">
+// ====================================================================
+//  ▼▼▼ 여기 firebaseConfig 한 곳만 붙여넣으면 됩니다 (배포 가이드 참고) ▼▼▼
+// ====================================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyCeoUrRyb5Q0kfj63pU5lQo_oEwNjIGQeQ",
+  authDomain: "yuna-homework.firebaseapp.com",
+  projectId: "yuna-homework",
+  storageBucket: "yuna-homework.firebasestorage.app",
+  messagingSenderId: "224203197846",
+  appId: "1:224203197846:web:05d9a4558ea2ecf98f61b7"
+};
+// ====================================================================
+
+const DAYS = ["일","월","화","수","목","금","토"];
+const todayKey = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+const dow = () => new Date().getDay();
+
+// 기본 데이터 (엄마가 수정하기 전 초기값) --------------------------
+const DEFAULT_TASKS = [
+  { id:'t1', title:'MCA 클래스룸 확인', range:'하교 후 스트림에서 오늘 숙제 확인', days:[1,2,3,4,5], tag:'v', time:'16:30' },
+  { id:'ma2', title:'MATH — Lesson 2.2', range:'교과서 pg. 43~44 / 워크북 pg. 13~14', days:[2], tag:'v', due:'2026-09-02', time:'19:00' },
+  { id:'ss3', title:'SOCIAL STUDIES — 읽기+문제', range:'pg. 28~33 읽기 · pg.33 문제 3·4·5', days:[2], tag:'v', due:'2026-09-02', time:'19:00' },
+  { id:'ma1', title:'MATH — Lesson 2.1', range:'교과서 pg. 39~40 / 워크북 pg. 11~12', days:[1], tag:'v', due:'2026-09-01', time:'19:00' },
+  { id:'pow1', title:'MATH — Problem of the Week', range:'Movie Magic (영화표 계산) · 금요일 9/4까지', days:[1,2,3,4], tag:'v', due:'2026-09-04', time:'19:00' },
+  { id:'proj1', title:'MATH — Pick a Project (1개 선택)', range:'행성 비교 or 산 높이 비교 중 택1 · 금요일 9/4까지', days:[1,2,3,4], tag:'v', due:'2026-09-04', time:'19:00' },
+  { id:'ws3', title:'WORD STUDY #3', range:'단어 14개 · Job 1~3 · 금요일 8:40 제출', days:[1,2,3,4], tag:'v', due:'2026-09-04', time:'19:00' },
+  { id:'t3', title:'바이올린 연습', range:'하교 직후', days:[2,4], tag:'g', time:'17:00' },
+  { id:'t4', title:'수학과외', range:'5:00 시작', days:[1,5], tag:'g', time:'17:00' },
+  { id:'m1', title:'MATH — Unit 1 Test 대비 (내일 시험!)', range:'금요일 Unit 1 시험 · pg.29~32 복습', days:[3,4], tag:'v', due:'2026-08-28', time:'19:00' },
+  { id:'k1', title:'KOREAN — 국어 숙제', range:'4-1가 · pg. 42~47 / pg. 27 · 월요일까지', days:[5,6,0,1], tag:'v', due:'2026-08-31', time:'19:00' },
+  { id:'sp1', title:'SPANISH — Introductions', range:'Speaking test 준비 (자기소개 말하기) · 월요일까지', days:[5,6,0,1], tag:'v', due:'2026-08-31', time:'19:00' },
+  { id:'m2', title:'MATH — Population Project (최종 마감!)', range:'월요일 오전 8:30 제출 · FINAL', days:[5,6,0,1], tag:'r', due:'2026-08-31', time:'19:00' },
+  { id:'ss2', title:'SOCIAL STUDIES — Regions Project (최종 마감!)', range:'화요일 2교시 쉬는시간 발표 · FINAL', days:[5,6,0,1,2], tag:'r', due:'2026-09-02', time:'19:00' },
+  { id:'ss1', title:'SOCIAL STUDIES — Ch.1 Lesson 3', range:'pg. 25~27, 문제 2·3·5·6·7·8', days:[4], tag:'v', due:'2026-08-28', time:'19:00' },
+  { id:'sc1', title:'SCIENCE — 문제 풀기', range:'pg. 172, Questions 1~2', days:[3,4,5], tag:'v', due:'2026-08-28', time:'19:00' },
+  { id:'r1', title:'READING — My View Workbook', range:'pg. 7~10, Questions 1~13', days:[3,4,5], tag:'v', due:'2026-08-28', time:'19:00' },
+  { id:'r2', title:'READING — Writing Narrative', range:'pg. 11에 응답 작성', days:[3,4,5], tag:'v', due:'2026-08-28', time:'19:00' },
+  { id:'t5a', title:'수학과외 숙제 (월 과외분)', range:'', days:[1,2,3,4], tag:'g', repeat:true },
+  { id:'t5b', title:'수학과외 숙제 (금 과외분)', range:'', days:[5,6,0], tag:'g', repeat:true },
+  { id:'t6', title:'MSC 논술 책읽기', range:'매일 조금씩 · 완독까지', days:[1,2,3,4,5,6,0], tag:'g', time:'20:00', repeat:true },
+  { id:'t7', title:'MSC 수업 전 숙제', range:'금요일에 · 다음 수업 준비', days:[5], tag:'g', time:'20:00' },
+  { id:'t7b', title:'MSC 수업 후 숙제', range:'토요일 수업 끝나고 · 다음 수업 전까지', days:[6,0,1,2,3,4], tag:'g', due:'2026-09-05' },
+  { id:'t11', title:'클럽(Clubs) 신청', range:'링크로 신청', days:[1,2,3,4,5], tag:'r', due:'2026-08-28' },
+  { id:'t12', title:'WORD STUDY #2 제출', range:'밀린 책 · 월요일 아침까지 제출', days:[5,6,0,1], tag:'r', due:'2026-08-31' },
+  { id:'v1', title:'VOCABULARY — Unit 1 Test 대비', range:'월요일 Unit 1 시험 · 워크북 복습', days:[5,6,0,1], tag:'r', due:'2026-08-31', time:'19:00' },
+  { id:'t13', title:'Science 실험+Lab Report', range:'밀림 — 최대한 빨리 완료', days:[1,2,3,4,5], tag:'r', due:'2026-08-28' },
+];
+const DEFAULT_BACKLOG = [
+  { id:'b1', title:'Word Study — 지난주분 미제출', pct:0 },
+  { id:'b2', title:'Science 미니 실험 + Lab Report', pct:0 },
+  { id:'b3', title:'Grammar Workshop 워크북 (밀린 진도)', pct:0 },
+  { id:'b4', title:'Vocabulary Workshop 워크북 (밀린 진도)', pct:0 },
+  { id:'b5', title:'Reading Workbook (밀린 진도)', pct:0 },
+];
+const WEEK = {
+  1:[['4:30','간식 · 클래스룸 확인'],['5:00','수학과외'],['6:20','저녁'],['7:00','학교 숙제'],['8:00','논술 책읽기'],['8:40','정리 · 취침 준비'],['9:30','취침']],
+  2:[['4:30','간식 · 클래스룸 확인'],['5:00','바이올린 연습'],['5:40','저녁'],['6:20','과외 숙제(월 과외분)'],['7:10','학교 숙제'],['8:00','논술 책읽기'],['8:40','정리 · 취침 준비'],['9:30','취침']],
+  3:[['4:30','간식 · 클래스룸 확인'],['5:00','밀린 과제'],['5:40','저녁'],['6:00','한국사 꾸그 (9/30~)'],['7:00','과외 숙제(월 과외분)'],['8:00','논술 책읽기'],['8:40','정리 · 취침 준비'],['9:30','취침']],
+  4:[['4:30','간식 · 클래스룸 확인'],['5:00','바이올린 연습'],['5:40','저녁'],['6:20','과외 숙제 마무리'],['7:10','학교 숙제'],['8:00','논술 책읽기(완독)'],['8:40','정리 · 취침 준비'],['9:30','취침']],
+  5:[['4:30','간식 · 클래스룸 확인'],['5:00','수학과외'],['6:20','저녁'],['7:10','학교 숙제'],['8:00','수업 전 숙제'],['8:40','정리 · 취침 준비'],['9:30','취침']],
+  6:[['11:50','MSC 논술 수업'],['점심 후','수업 후 숙제'],['오후','금 과외 숙제 / 바이올린 레슨']],
+  0:[['오전','바이올린 레슨'],['오후','금 과외 숙제 마무리 · 수업 전 숙제 · 다음 주 준비']],
+};
+
+let state = { tasks:[...DEFAULT_TASKS], backlog:[...DEFAULT_BACKLOG], checks:{}, parking:[] };
+let role = 'yuna';   // 앱 열면 항상 윤아 모드로 시작 (엄마 모드는 비번 입력)
+let tab = 'today';
+let selectedDate = null;   // 주간 달력에서 고른 날 (null이면 오늘)
+let db=null, live=false, fb=null;
+
+// Firebase 연결 (설정 있으면 실시간, 없으면 로컬 데모) ----------------
+async function initFirebase(){
+  loadLocal();  // 우선 화면부터 띄운다 (Firebase가 늦거나 실패해도 앱은 보임)
+  if(firebaseConfig.apiKey === '여기에_붙여넣기'){
+    setStatus(false,'데모 모드 — Firebase 설정 전. 이 기기에만 저장돼요.');
+    return;
+  }
+  try{
+    const appMod = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const fsMod  = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    fb = fsMod;
+    const app = appMod.initializeApp(firebaseConfig);
+    db = fsMod.getFirestore(app);
+    fsMod.onSnapshot(fsMod.doc(db,'yuna','data'), (snap)=>{
+      if(snap.exists()){ const d=snap.data();
+        if(d.tasks) state.tasks=d.tasks; if(d.backlog) state.backlog=d.backlog; if(d.parking) state.parking=d.parking; }
+      setStatus(true,'실시간 연결됨 · 셋이 공유 중');
+      render(); }, ()=> setStatus(false,'연결 오류 — 새로고침 해보세요'));
+    fsMod.onSnapshot(fsMod.doc(db,'yuna','checks'), (snap)=>{
+      state.checks = snap.exists()? (snap.data().map||{}) : {}; render();
+      setStatus(true,'실시간 연결됨 · 셋이 공유 중'); },
+      ()=> setStatus(false,'연결 오류 — 새로고침 해보세요'));
+    live=true;
+  }catch(e){ setStatus(false,'Firebase 로딩 실패 — 로컬 저장으로 작동 중'); }
+}
+function setStatus(isLive,txt){ live=isLive;
+  document.getElementById('liveDot').classList.toggle('live',isLive);
+  document.getElementById('statusText').textContent=txt; }
+
+// 로컬 저장 (데모 모드) ------------------------------------------
+function loadLocal(){
+  const s=localStorage.getItem('yuna_state'); if(s){ const j=JSON.parse(s); state.tasks=j.tasks||state.tasks; state.backlog=j.backlog||state.backlog; state.parking=j.parking||[]; }
+  const c=localStorage.getItem('yuna_checks'); state.checks=c?JSON.parse(c):{};
+  render();
+}
+function saveLocal(){ localStorage.setItem('yuna_state',JSON.stringify({tasks:state.tasks,backlog:state.backlog,parking:state.parking}));
+  localStorage.setItem('yuna_checks',JSON.stringify(state.checks)); }
+
+// 저장 (Firebase or 로컬) ---------------------------------------
+async function saveChecks(){
+  if(db&&fb){ try{ await fb.setDoc(fb.doc(db,'yuna','checks'),{map:state.checks}); }catch(e){ saveLocal(); } }
+  else saveLocal();
+}
+async function saveTasks(){
+  if(db&&fb){ try{ await fb.setDoc(fb.doc(db,'yuna','data'),{tasks:state.tasks,backlog:state.backlog,parking:state.parking}); }catch(e){ saveLocal(); } }
+  else saveLocal();
+  render();
+}
+
+// 응원 문구 (윤아 체크할 때마다 랜덤) ---------------------------
+const CHEERS = [
+  ['You are capable of amazing things.','너는 멋진 일들을 해낼 수 있어 ✨'],
+  ['You are braver than you think.','넌 생각보다 훨씬 용감해 🦁'],
+  ['Keep being wonderfully you.','멋진 너답게 계속 나아가 🌈'],
+  ["You don't have to be perfect to be amazing.",'완벽하지 않아도 충분히 멋져 💗'],
+  ['Believe in yourself. You can do it.','너 자신을 믿어. 넌 할 수 있어! ⭐'],
+  ['You are growing into someone wonderful.','너는 멋진 사람으로 자라고 있어 🌱'],
+  ['There is no one else like you.','너 같은 사람은 세상에 딱 한 명 💖'],
+  ['Your story is just beginning.','너의 이야기는 이제 막 시작됐어 📖'],
+  ['She believed she could, so she did!','넌 해낼 거라 믿었고, 그래서 해냈어! 🌷'],
+  ['I hope you always remember how wonderful you are.','네가 얼마나 멋진지 늘 기억하길 🌸'],
+  ['Be weird! Who cares!','너답게! 신경 쓰지 마! 😆'],
+];
+function showCheer(){
+  const [en,ko]=CHEERS[Math.floor(Math.random()*CHEERS.length)];
+  let box=document.getElementById('cheerPop');
+  if(!box){ box=document.createElement('div'); box.id='cheerPop'; box.className='cheer-pop'; document.body.appendChild(box); }
+  box.innerHTML=`<div class="cheer-pop-inner">
+    <div class="cheer-pop-em">🌸</div>
+    <div class="cheer-pop-en">${en}</div>
+    <div class="cheer-pop-ko">${ko}</div>
+  </div>`;
+  box.classList.remove('show'); void box.offsetWidth; box.classList.add('show');
+  clearTimeout(window._cheerT);
+  window._cheerT=setTimeout(()=>box.classList.remove('show'),2200);
+}
+
+// 체크 토글 (윤아만) — 완료 시 날짜 기록 -------------------------
+window.toggleCheck = async (id)=>{
+  if(role==='parent'){ openEdit(id); return; }   // 보호자: 항목 수정
+  if(role!=='yuna') return;
+  const wasDone = !!state.checks[id];
+  if(wasDone) delete state.checks[id];                    // 체크 해제
+  else { state.checks[id] = todayKey(); showCheer(); }    // 완료: 날짜 기록 + 응원
+  render(); await saveChecks();
+};
+
+// 보호자 모드 — 항목 범위/제목/시간 수정 --------------------------
+window.openEdit=(id)=>{
+  const t = state.tasks.find(x=>x.id===id); if(!t) return;
+  document.getElementById('modalBox').innerHTML = `
+    <h3>✏️ 숙제 수정</h3>
+    <label>제목</label>
+    <input id="e-title" value="${(t.title||'').replace(/"/g,'&quot;')}" />
+    <label>세부 범위 / 메모 <span style="color:var(--violet-ink);font-weight:700;">(과외 숙제 범위 등)</span></label>
+    <input id="e-range" value="${(t.range||'').replace(/"/g,'&quot;')}" placeholder="예: 문제집 pg. 42~50" />
+    <label>시간 (선택 · 예 19:00)</label>
+    <input id="e-time" value="${t.time||''}" placeholder="비워도 됨" />
+    <div class="m-actions">
+      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-save" onclick="saveEdit('${id}')">저장</button>
+    </div>
+    <button onclick="deleteTask('${id}')" style="width:100%;margin-top:10px;background:none;border:0;color:var(--red);font-size:13px;font-weight:700;font-family:inherit;">🗑 이 항목 삭제</button>`;
+  showModal();
+};
+window.saveEdit=async(id)=>{
+  const t = state.tasks.find(x=>x.id===id); if(!t) return;
+  t.title = document.getElementById('e-title').value.trim() || t.title;
+  t.range = document.getElementById('e-range').value.trim();
+  const tm = document.getElementById('e-time').value.trim();
+  if(tm) t.time=tm; else delete t.time;
+  closeModal(); render(); await saveTasks();
+};
+window.deleteTask=async(id)=>{
+  if(!confirm('이 항목을 삭제할까요?')) return;
+  state.tasks = state.tasks.filter(x=>x.id!==id);
+  delete state.checks[id];
+  closeModal(); render(); await saveTasks(); await saveChecks();
+};
+
+// 완료 판정: 반복 항목은 '오늘 완료'만 완료로 침(다음날 리셋), 일반은 체크되면 완료
+function taskDone(t){
+  if(!state.checks[t.id]) return false;
+  if(t.repeat) return state.checks[t.id]===todayKey();  // 반복: 오늘 체크한 것만
+  return true;                                          // 일반: 체크되면 완료
+}
+
+// 오늘 할 일 = 미완료 항목 (오늘 요일 + 마감 지난 미완료 이월) ---------
+function todayTasks(){
+  // 선택한 날짜(없으면 오늘)
+  const viewDate = selectedDate ? new Date(selectedDate+'T00:00:00') : new Date();
+  viewDate.setHours(0,0,0,0);
+  const d = viewDate.getDay();
+  const isPast = selectedDate && (viewDate < new Date(new Date().setHours(0,0,0,0)));
+  const isDone = t => taskDone(t);
+  const list = state.tasks.filter(t=>{
+    const onDay = (t.days||[]).includes(d);
+    if(selectedDate){
+      // 특정 날짜 보기: 그날 요일에 있던 항목 전부 (완료 여부 상관없이 그날 기록 표시)
+      return onDay;
+    }
+    // 오늘 보기: 완료 제외 + 마감 지난 미완료 이월
+    if(isDone(t)) return false;
+    const overdue = t.due && (new Date(t.due+'T00:00:00') < viewDate);
+    return onDay || overdue;
+  });
+  list.forEach(t=>{
+    t._carry = !selectedDate && t.due && (new Date(t.due+'T00:00:00') < viewDate);
+  });
+  const isUrgent = t => t.tag==='r' || t._carry;
+  const dueVal = t => t.due ? new Date(t.due+'T00:00:00').getTime() : Infinity;
+  const timeVal = t => t.time ? parseInt(t.time.replace(':',''),10) : 9999;
+  return list.sort((a,b)=>{
+    const au=isUrgent(a), bu=isUrgent(b);
+    if(au!==bu) return au? -1 : 1;
+    if(au&&bu) return dueVal(a)-dueVal(b);
+    return timeVal(a)-timeVal(b);
+  });
+}
+
+// ---------- 렌더 ----------
+function render(){
+  cleanupDone();  // 마감 지난 완료 항목 자동 삭제
+  const d=new Date();
+  document.getElementById('dateLine').innerHTML = `${d.getMonth()+1}월 ${d.getDate()}일 <span class="dow">${DAYS[d.getDay()]}요일</span>`;
+  renderWeekStrip(d);
+  document.getElementById('whoami').textContent = role==='yuna'?'윤아':'엄마·아빠';
+  document.getElementById('role-yuna').classList.toggle('on',role==='yuna');
+  document.getElementById('role-parent').classList.toggle('on',role==='parent');
+  document.getElementById('fab').classList.toggle('show', role==='parent' && tab!=='week');
+  const pb=document.getElementById('parentBar');
+  if(pb) pb.style.display = (role==='parent' && tab==='today') ? 'block' : 'none';
+
+  const list = todayTasks();
+  const viewingPast = !!selectedDate;
+  // 진행률: 선택 날짜면 그날 완료수, 아니면 오늘 완료수
+  let doneCount, total;
+  if(viewingPast){
+    const sd=selectedDate;
+    doneCount = state.tasks.filter(t=> state.checks[t.id]===sd).length;
+    total = list.length;
+    const vd=new Date(sd+'T00:00:00');
+    document.getElementById('progLab').textContent = `${vd.getMonth()+1}월 ${vd.getDate()}일 (${DAYS[vd.getDay()]}) 할 일`;
+  } else {
+    doneCount = state.tasks.filter(t=> state.checks[t.id]===todayKey()).length;
+    total = list.length + state.tasks.filter(t=>taskDone(t)).length;
+    document.getElementById('progLab').textContent = role==='yuna'?'오늘 내가 할 일':'오늘 윤아가 할 일';
+  }
+  document.getElementById('progDone').textContent=doneCount;
+  document.getElementById('progTotal').textContent=total;
+  document.getElementById('progBar').style.width = total? (doneCount/total*100)+'%':'0%';
+
+  renderToday(list); renderDone(); renderWeek(); renderBacklog();
+  updateParkBadge();
+}
+
+// 완료 항목 중 마감 지난 것 자동 삭제 ---------------------------
+function cleanupDone(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  let changed=false;
+  state.tasks.forEach(t=>{
+    const doneOn = state.checks[t.id];
+    if(doneOn && typeof doneOn==='string'){
+      // 완료한 날로부터 3일 지난 것만 정리 (당일·최근 완료는 유지)
+      const dd=new Date(doneOn+'T00:00:00');
+      const days=Math.round((today-dd)/86400000);
+      if(days>=3){ delete state.checks[t.id]; changed=true; }
+    }
+  });
+  if(changed) saveChecks();
+}
+
+function checkSVG(){ return '<svg viewBox="0 0 20 20"><polyline points="4,10 8,14 16,5"/></svg>'; }
+
+// 주간 달력 스트립 (이번 주 월~일, 오늘 강조) --------------------
+function renderWeekStrip(d){
+  const el=document.getElementById('weekstrip'); if(!el) return;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const base=new Date(d); base.setHours(0,0,0,0);
+  const sel = selectedDate ? new Date(selectedDate+'T00:00:00') : today;
+  const dow0=base.getDay();
+  const monOffset = dow0===0? -6 : 1-dow0;
+  const mon=new Date(base); mon.setDate(base.getDate()+monOffset);
+  const L=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let html='';
+  for(let i=0;i<7;i++){
+    const dd=new Date(mon); dd.setDate(mon.getDate()+i);
+    const key=`${dd.getFullYear()}-${String(dd.getMonth()+1).padStart(2,'0')}-${String(dd.getDate()).padStart(2,'0')}`;
+    const isSel = dd.getTime()===sel.getTime();
+    html+=`<div class="wday ${isSel?'today':''}" onclick="pickDate('${key}')"><div class="wl">${L[i]}</div><div class="wn">${dd.getDate()}</div></div>`;
+  }
+  el.innerHTML=html;
+}
+window.pickDate=(key)=>{
+  const today=new Date(); const tKey=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  selectedDate = (key===tKey)? null : key;   // 오늘 누르면 선택 해제
+  tab='today';
+  switchTab('today');
+  render();
+};
+
+function renderToday(list){
+  const el=document.getElementById('view-today');
+  let banner='';
+  if(selectedDate){
+    const vd=new Date(selectedDate+'T00:00:00');
+    banner=`<div class="viewing-banner" onclick="pickToday()">📅 ${vd.getMonth()+1}/${vd.getDate()}(${DAYS[vd.getDay()]}) 보는 중 · <b>오늘로 돌아가기</b></div>`;
+  }
+  if(!list.length){ el.innerHTML=banner+'<div class="celebrate"><div class="em">🎉</div><p>이 날은 할 일이 없어요!</p></div>'; return; }
+  el.innerHTML = banner + list.map(cardHTML).join('');
+}
+window.pickToday=()=>{ selectedDate=null; render(); };
+
+function renderDone(){
+  const el=document.getElementById('view-done');
+  // ── 어제 요약 ──
+  const y=new Date(); y.setDate(y.getDate()-1); y.setHours(0,0,0,0);
+  const yKey=`${y.getFullYear()}-${String(y.getMonth()+1).padStart(2,'0')}-${String(y.getDate()).padStart(2,'0')}`;
+  const yDow=y.getDay();
+  // 어제 해야 했던 항목: 어제 요일에 포함됐던 것
+  const yTasks = state.tasks.filter(t=> (t.days||[]).includes(yDow));
+  const yDone = yTasks.filter(t=> state.checks[t.id]===yKey || (!t.repeat && state.checks[t.id] && state.checks[t.id]<=yKey));
+  const yMissed = yTasks.filter(t=> !yDone.includes(t));
+  const yLabel = `${y.getMonth()+1}/${y.getDate()}(${DAYS[yDow]})`;
+  let yHTML = `<div class="ysum">
+    <div class="ysum-h">📅 어제 (${yLabel}) 요약</div>
+    <div class="ysum-row"><span class="ysum-tag ok">한 것 ${yDone.length}</span><span class="ysum-tag no">안 한 것 ${yMissed.length}</span></div>`;
+  if(yMissed.length){
+    yHTML += `<div class="ysum-sub">못 한 것:</div>` + yMissed.map(t=>`<div class="ysum-item miss">· ${esc(t.title)}</div>`).join('');
+  }
+  if(yDone.length){
+    yHTML += `<div class="ysum-sub">한 것:</div>` + yDone.map(t=>`<div class="ysum-item ok">· ${esc(t.title)}</div>`).join('');
+  }
+  yHTML += `</div>`;
+
+  // ── 완료 목록 (전체) ──
+  const doneList = state.tasks.filter(t=> taskDone(t));
+  let doneHTML;
+  if(!doneList.length){ doneHTML='<div class="empty">아직 완료한 숙제가 없어요.</div>'; }
+  else {
+    doneList.sort((a,b)=> (state.checks[b.id]||'').localeCompare(state.checks[a.id]||''));
+    doneHTML = `<div class="ysum-sub" style="margin-top:16px;">✅ 완료한 숙제</div>` + doneList.map(t=>{
+      const when = state.checks[t.id];
+      const wd = when ? (()=>{ const dt=new Date(when+'T00:00:00'); return `${dt.getMonth()+1}/${dt.getDate()}(${DAYS[dt.getDay()]}) 완료`; })() : '';
+      return `<div class="item done" onclick="toggleCheck('${t.id}')">
+        <div class="check">${checkSVG()}</div>
+        <div class="body">
+          <div class="ttl">${esc(t.title)}</div>
+          ${t.range?`<div class="rng">${esc(t.range)}</div>`:''}
+          <div class="due">✅ ${wd}</div>
+        </div></div>`;
+    }).join('');
+  }
+  el.innerHTML = yHTML + doneHTML;
+}
+function ddayInfo(due){
+  if(!due) return null;
+  const now=new Date(); now.setHours(0,0,0,0);
+  const d=new Date(due+'T00:00:00');
+  const diff=Math.round((d-now)/86400000);
+  const label = diff===0?'D-DAY' : diff>0?('D-'+diff) : ('D+'+(-diff));
+  const dueTxt = `${d.getMonth()+1}/${d.getDate()}(${DAYS[d.getDay()]})`;
+  // 색상: 지남/오늘=빨강, 1~2일=주황, 그 이상=보라
+  let cls = diff<0?'dd-over' : diff===0?'dd-today' : diff<=2?'dd-soon' : 'dd-far';
+  return { label, dueTxt, cls };
+}
+
+// 카테고리별 아이콘 + 박스 색 (학교/학원/밀림) --------------------
+function taskIcon(t){
+  if(t._carry) return ['⚠️','#fbe6ec'];        // 이월된 것도 밀림 취급
+  if(t.tag==='v') return ['📚','#f0ebfd'];      // 학교/필수 (보라)
+  if(t.tag==='g') return ['✏️','#eaf4ea'];      // 학원/연습 (민트)
+  return ['⚠️','#fbe6ec'];                       // 밀림/급함 (핑크)
+}
+
+function cardHTML(t){
+  const on = selectedDate ? (state.checks[t.id]===selectedDate) : !!state.checks[t.id];
+  const lock = role!=='yuna' || !!selectedDate;   // 과거 날짜는 체크 잠금
+  const [ico,icobg] = taskIcon(t);
+  const kkBtn = t.kk ? `<button onclick="event.stopPropagation();openKkg(event)" class="kk-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10l4.5-2.5v9L15 14"/><rect x="2" y="6" width="13" height="12" rx="2"/></svg>꾸그 열기</button>` : '';
+  const dd = ddayInfo(t.due);
+  const ddBadge = dd && !on ? `<span class="dd ${dd.cls}">${dd.label}</span>` : '';
+  const carryTag = t._carry ? `<span class="carrytag">지난 숙제</span>` : '';
+  const catTxt = t._carry?'밀림' : t.tag==='v'?'학교':t.tag==='g'?'학원':'밀림';
+  const catTag = `<span class="tag ${t._carry?'r':t.tag}">${catTxt}</span>`;
+  const topBadges = (ddBadge||carryTag) ? `<div class="badge-row">${ddBadge}${carryTag}</div>` : '';
+  const timeCol = t.time ? `<div class="time-col"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b7aea0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg><span>${t.time}</span></div>` : '';
+  return `<div class="item cat-${t.tag} ${on?'done':''} ${lock?'locked':''} ${t._carry?'carry':''}" onclick="toggleCheck('${t.id}')">
+    <div class="check">${checkSVG()}</div>
+    <div class="icobox" style="background:${icobg}">${ico}</div>
+    <div class="body">
+      ${topBadges}
+      <div class="ttl">${esc(t.title)}</div>
+      ${t.range?`<div class="rng">${esc(t.range)}</div>`:''}
+      <div class="chips-row">${catTag}</div>
+      ${kkBtn}
+    </div>
+    ${timeCol}
+  </div>`;
+}
+
+function renderWeek(){
+  const el=document.getElementById('view-week');
+  const names={1:'월요일',2:'화요일',3:'수요일',4:'목요일',5:'금요일',6:'토요일',0:'일요일'};
+  let html='';
+  [1,2,3,4,5,6,0].forEach(dnum=>{
+    const rows=WEEK[dnum]||[]; const isToday = dnum===dow();
+    html+=`<div class="day-block"><div class="day-name">${names[dnum]}${isToday?' · 오늘':''}</div>`;
+    rows.forEach(r=> html+=`<div class="slot"><div class="t">${r[0]}</div><div class="a">${esc(r[1])}</div></div>`);
+    html+='</div>';
+  });
+  el.innerHTML=html;
+}
+
+function renderBacklog(){
+  const el=document.getElementById('view-backlog');
+  if(!state.backlog.length){ el.innerHTML='<div class="empty">밀린 과제가 없어요. 잘하고 있어요!</div>'; return; }
+  el.innerHTML = '<div class="backlog">'+state.backlog.map(b=>`
+    <div class="item">
+      <div class="body">
+        <div class="ttl">${esc(b.title)}</div>
+        <div class="mini-bar"><i style="width:${b.pct||0}%"></i></div>
+      </div>
+      <div class="pct">${b.pct||0}%</div>
+    </div>`).join('')+'</div>'
+    + (role==='parent'?'<div class="sec-title" style="margin-top:16px">엄마: + 버튼으로 항목·진행률 수정</div>':'');
+}
+
+const esc = s => (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// ---------- 탭 / 역할 ----------
+window.switchTab=(t)=>{ tab=t;
+  ['today','done','week','backlog'].forEach(x=>{
+    document.getElementById('view-'+x).style.display = x===t?'block':'none';
+    document.querySelector(`.tabs button[data-tab="${x}"]`).classList.toggle('on',x===t);
+  });
+  document.getElementById('fab').classList.toggle('show', role==='parent' && t!=='week');
+  const pb=document.getElementById('parentBar');
+  if(pb) pb.style.display = (role==='parent' && t==='today') ? 'block' : 'none';
+};
+const PARENT_PW = '3578';  // 엄마·아빠 비밀번호
+window.setRole=(r)=>{
+  if(r==='parent'){
+    // 매번 비밀번호 확인
+    const input = prompt('엄마·아빠 비밀번호를 입력하세요');
+    if(input===null) return;                          // 취소
+    if(input!==PARENT_PW){ alert('비밀번호가 맞지 않아요'); return; }
+  }
+  role=r; render();   // 역할을 저장하지 않음 → 앱 새로 열면 항상 윤아 모드
+};
+
+// 클래스룸 갱신 요청 문구 복사 (부모 모드) -----------------------
+window.resetToFile=(btn)=>{
+  if(!confirm('이 파일의 최신 숙제 목록으로 새로고침할까요?\n\n· 숙제 목록이 파일 기준으로 바뀝니다\n· 윤아의 완료 체크는 그대로 유지됩니다')) return;
+  const span=btn.querySelector('span');
+  state.tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS));
+  state.backlog = JSON.parse(JSON.stringify(DEFAULT_BACKLOG));
+  saveTasks();  // Firebase(또는 로컬)에 덮어쓰기, 체크는 건드리지 않음
+  span.textContent='최신 숙제로 새로고침 완료!';
+  setTimeout(()=>{ span.textContent='이 파일의 최신 숙제로 새로고침'; },2200);
+};
+
+// 꾸그 화상수업 앱 열기 (없으면 앱스토어) ------------------------
+window.openKkg=(e)=>{
+  e.preventDefault();
+  const store='https://apps.apple.com/kr/app/%EA%BE%B8%EA%B7%B8/id1575300311';
+  const t=Date.now();
+  // 꾸그 앱 실행 시도 (알려진 스킴이 없으므로 앱스토어로 바로 연결)
+  window.location.href=store;
+};
+
+// 클래스룸 앱 열기 (설치돼 있으면 앱, 없으면 웹) --------------------
+window.openClassroom=(e)=>{
+  e.preventDefault();
+  const t=Date.now();
+  // 클래스룸 앱 URL 스킴 시도
+  window.location.href='comgoogleclassroom://';
+  // 앱이 없으면 잠시 후 웹으로
+  setTimeout(()=>{ if(Date.now()-t<1500) window.location.href='https://classroom.google.com'; },800);
+};
+
+// ---------- 딴생각 주차장 ----------
+window.openPark=()=>{
+  renderParkModal();
+  showModal();
+};
+function renderParkModal(){
+  const items = state.parking||[];
+  document.getElementById('modalBox').innerHTML = `
+    <h3>🅿️ 딴생각 주차장</h3>
+    <p style="font-size:13px;color:var(--ink2);margin:0 0 12px;line-height:1.5;">숙제하다 딴생각이 나면 여기 잠깐 세워둬요.<br>다 적었으면 다시 숙제로 돌아가면 돼요! 나중에 봐도 돼요 😊</p>
+    <div style="display:flex;gap:8px;">
+      <input id="park-in" placeholder="예: 이따 그림 그리기, 물 마시기…" style="flex:1;" onkeydown="if(event.key==='Enter')addPark()" />
+      <button class="btn-save" style="flex:0 0 auto;padding:0 16px;border-radius:11px;" onclick="addPark()">세우기</button>
+    </div>
+    <div class="park-list" style="margin-top:14px;">
+      ${items.length? items.map((p,i)=>`<div class="park-item"><div class="pt">${esc(p)}</div><button class="px" onclick="delPark(${i})">×</button></div>`).join('')
+        : '<div class="empty" style="padding:20px 10px;">아직 세워둔 생각이 없어요 🌿</div>'}
+    </div>
+    <div class="m-actions"><button class="btn-cancel" onclick="closeModal()">닫기</button></div>`;
+}
+window.addPark=async()=>{
+  const inp=document.getElementById('park-in'); const v=inp.value.trim();
+  if(!v) return;
+  state.parking=[...(state.parking||[]), v];
+  inp.value='';
+  await saveTasks(); renderParkModal(); updateParkBadge();
+};
+window.delPark=async(i)=>{
+  state.parking.splice(i,1);
+  await saveTasks(); renderParkModal(); updateParkBadge();
+};
+function updateParkBadge(){
+  const b=document.getElementById('parkBadge'); if(!b) return;
+  const n=(state.parking||[]).length;
+  b.textContent=n; b.style.display = n>0? 'flex':'none';
+}
+
+// ---------- 엄마 관리자 모드 ----------
+let editDays=[];
+window.openAdd=()=>{
+  if(role!=='parent') return;
+  if(tab==='backlog'){ openBacklogEditor(); return; }
+  editDays=[];
+  document.getElementById('modalBox').innerHTML = `
+    <h3>할 일 추가</h3>
+    <label>할 일 이름</label>
+    <input id="f-title" placeholder="예: 학교 숙제 (오늘분)" />
+    <label>세부 범위 / 메모</label>
+    <input id="f-range" placeholder="예: Math pg. 19~20" />
+    <label>마감일 (선택 — 넣으면 D-day 표시)</label>
+    <input id="f-due" type="date" />
+    <label>요일 선택</label>
+    <div class="chips" id="f-days">
+      ${[[1,'월'],[2,'화'],[3,'수'],[4,'목'],[5,'금'],[6,'토'],[0,'일']].map(d=>`<button type="button" onclick="toggleDay(${d[0]},this)">${d[1]}</button>`).join('')}
+    </div>
+    <label>분류</label>
+    <select id="f-tag"><option value="v">학교/필수</option><option value="g">학원/연습</option><option value="r">밀림</option></select>
+    <div class="m-actions">
+      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-save" onclick="saveNewTask()">추가</button>
+    </div>`;
+  showModal();
+};
+window.toggleDay=(n,btn)=>{ const i=editDays.indexOf(n);
+  if(i>=0){editDays.splice(i,1);btn.classList.remove('on');} else {editDays.push(n);btn.classList.add('on');} };
+window.saveNewTask=async()=>{
+  const title=document.getElementById('f-title').value.trim();
+  if(!title){ alert('할 일 이름을 입력하세요'); return; }
+  if(!editDays.length){ alert('요일을 하나 이상 선택하세요'); return; }
+  state.tasks.push({ id:'t'+Date.now(), title, range:document.getElementById('f-range').value.trim(),
+    days:[...editDays], tag:document.getElementById('f-tag').value,
+    due:document.getElementById('f-due').value || undefined });
+  closeModal(); await saveTasks();
+};
+
+window.openBacklogEditor=()=>{
+  document.getElementById('modalBox').innerHTML = `
+    <h3>밀린 과제 관리</h3>
+    <div id="bl-list">${state.backlog.map((b,i)=>`
+      <div class="admin-row">
+        <input value="${esc(b.title)}" oninput="editBl(${i},'title',this.value)" />
+        <input type="number" min="0" max="100" value="${b.pct||0}" style="flex:0 0 70px" oninput="editBl(${i},'pct',this.value)" />
+        <button class="x" onclick="delBl(${i})">×</button>
+      </div>`).join('')}</div>
+    <button class="chips" style="border:1px dashed var(--line);background:#fff;border-radius:11px;padding:11px;width:100%;font-weight:700;color:var(--violet-ink)" onclick="addBl()">+ 밀린 과제 추가</button>
+    <div class="m-actions">
+      <button class="btn-cancel" onclick="closeModal()">닫기</button>
+      <button class="btn-save" onclick="saveBl()">저장</button>
+    </div>`;
+  showModal();
+};
+window.editBl=(i,k,v)=>{ state.backlog[i][k] = k==='pct'? Math.max(0,Math.min(100,parseInt(v)||0)) : v; };
+window.delBl=(i)=>{ state.backlog.splice(i,1); openBacklogEditor(); };
+window.addBl=()=>{ state.backlog.push({id:'b'+Date.now(),title:'새 과제',pct:0}); openBacklogEditor(); };
+window.saveBl=async()=>{ closeModal(); await saveTasks(); };
+
+// 오늘 할 일 카드 롱프레스로 삭제 (엄마 모드) — 간단화: 관리자 안내만
+function showModal(){ document.getElementById('modalBg').classList.add('show'); }
+window.closeModal=()=>{ document.getElementById('modalBg').classList.remove('show'); };
+document.getElementById('modalBg').addEventListener('click',e=>{ if(e.target.id==='modalBg') closeModal(); });
+
+render();
+initFirebase();
+</script>
+</body>
+</html>
