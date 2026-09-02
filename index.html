@@ -21,9 +21,12 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   body{margin:0;font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
     background:var(--paper);color:var(--ink);line-height:1.5;padding-bottom:90px;}
-  /* Netlify 광고 배지 숨김 */
-  [class*="netlify"],[id*="netlify-badge"],.netlify-badge,#netlify-badge,
-  div[style*="netlify"],a[href*="netlify.com"][target="_blank"]{display:none !important;}
+  /* Netlify 광고 배지 숨김 (iframe 포함 강력 차단) */
+  [class*="netlify"],[id*="netlify"],.netlify-badge,#netlify-badge,
+  iframe[src*="netlify"],iframe[title*="Netlify"],iframe[title*="netlify"],
+  div[style*="netlify"],a[href*="netlify.com"],
+  #netlify-badge-container,.netlify-badge-container,
+  [data-netlify-badge]{display:none !important;visibility:hidden !important;opacity:0 !important;pointer-events:none !important;}
   .wrap{max-width:520px;margin:0 auto;padding:0 16px;}
 
   header{padding:20px 18px 8px;position:relative;}
@@ -286,6 +289,8 @@ const dow = () => new Date().getDay();
 const DEFAULT_TASKS = [
   { id:'t1', title:'MCA 클래스룸 확인', range:'하교 후 스트림에서 오늘 숙제 확인', days:[1,2,3,4,5], tag:'v', time:'16:30' },
   { id:'ma3', title:'MATH — Lesson 2.3', range:'교과서 pg. 47~48 / 워크북 pg. 15~16', days:[3], tag:'v', due:'2026-09-03', time:'19:00' },
+  { id:'rd2', title:'READING — My View 4.1', range:'pg. 62~67 읽고 새 단어·어려운 단어 표시', days:[3], tag:'v', due:'2026-09-03', time:'19:00' },
+  { id:'ss4', title:'SOCIAL STUDIES — "Your Country" rough copy', range:'초안 완성해서 내일 가져오기', days:[3], tag:'v', due:'2026-09-03', time:'19:00' },
   { id:'ma2', title:'MATH — Lesson 2.2', range:'교과서 pg. 43~44 / 워크북 pg. 13~14', days:[2], tag:'v', due:'2026-09-02', time:'19:00' },
   { id:'ss3', title:'SOCIAL STUDIES — 읽기+문제', range:'pg. 28~33 읽기 · pg.33 문제 3·4·5', days:[2], tag:'v', due:'2026-09-02', time:'19:00' },
   { id:'rd1', title:'READING — My View 4.1', range:'pg. 58~61 읽고 새 단어·어려운 단어 표시', days:[2], tag:'v', due:'2026-09-02', time:'19:00' },
@@ -854,6 +859,17 @@ document.getElementById('modalBg').addEventListener('click',e=>{ if(e.target.id=
 
 render();
 initFirebase();
+
+// Netlify 광고 배지 제거 (뒤늦게 삽입되는 것도 계속 감시) ----------
+function killNetlifyBadge(){
+  document.querySelectorAll('iframe,div,a').forEach(el=>{
+    const s=(el.src||'')+(el.href||'')+(el.title||'')+(el.className||'')+(el.id||'');
+    if(/netlify/i.test(s) && !el.closest('.wrap')){ el.style.display='none'; el.remove?.(); }
+  });
+}
+killNetlifyBadge();
+setInterval(killNetlifyBadge, 1500);
+new MutationObserver(killNetlifyBadge).observe(document.body,{childList:true,subtree:true});
 </script>
 </body>
 </html>
