@@ -21,6 +21,9 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   body{margin:0;font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
     background:var(--paper);color:var(--ink);line-height:1.5;padding-bottom:90px;}
+  /* Netlify 광고 배지 숨김 */
+  [class*="netlify"],[id*="netlify-badge"],.netlify-badge,#netlify-badge,
+  div[style*="netlify"],a[href*="netlify.com"][target="_blank"]{display:none !important;}
   .wrap{max-width:520px;margin:0 auto;padding:0 16px;}
 
   header{padding:20px 18px 8px;position:relative;}
@@ -282,18 +285,19 @@ const dow = () => new Date().getDay();
 // 기본 데이터 (엄마가 수정하기 전 초기값) --------------------------
 const DEFAULT_TASKS = [
   { id:'t1', title:'MCA 클래스룸 확인', range:'하교 후 스트림에서 오늘 숙제 확인', days:[1,2,3,4,5], tag:'v', time:'16:30' },
-  { id:'ma1', title:'MATH — Lesson 2.1', range:'교과서 pg. 39~40 / 워크북 pg. 11~12', days:[1], tag:'v', due:'2026-09-02', time:'19:00' },
-  { id:'ma2', title:'MATH — Lesson 2.2', range:'교과서 pg. 43~44 / 워크북 pg. 13~14', days:[2], tag:'v', due:'2026-09-03', time:'19:00' },
-  { id:'ss3', title:'SOCIAL STUDIES — 읽기+문제', range:'pg. 28~33 읽기 · pg.33 문제 3·4·5', days:[2], tag:'v', due:'2026-09-03', time:'19:00' },
-  { id:'pow1', title:'MATH — Problem of the Week', range:'Movie Magic (영화표 계산) · 금요일 9/4까지', days:[1,2,3,4], tag:'v', due:'2026-09-04', time:'19:00' },
-  { id:'proj1', title:'MATH — Pick a Project (1개 선택)', range:'행성 비교 or 산 높이 비교 중 택1 · 금요일 9/4까지', days:[1,2,3,4], tag:'v', due:'2026-09-04', time:'19:00' },
-  { id:'ws3', title:'WORD STUDY #3', range:'단어 14개 · Job 1~3 · 금요일 8:40 제출', days:[1,2,3,4], tag:'v', due:'2026-09-04', time:'19:00' },
-  { id:'ss2', title:'SOCIAL STUDIES — Regions Project (발표!)', range:'화요일 2교시 쉬는시간 발표', days:[1,2], tag:'r', due:'2026-09-02', time:'19:00' },
+  { id:'ma3', title:'MATH — Lesson 2.3', range:'교과서 pg. 47~48 / 워크북 pg. 15~16', days:[3], tag:'v', due:'2026-09-03', time:'19:00' },
+  { id:'ma2', title:'MATH — Lesson 2.2', range:'교과서 pg. 43~44 / 워크북 pg. 13~14', days:[2], tag:'v', due:'2026-09-02', time:'19:00' },
+  { id:'ss3', title:'SOCIAL STUDIES — 읽기+문제', range:'pg. 28~33 읽기 · pg.33 문제 3·4·5', days:[2], tag:'v', due:'2026-09-02', time:'19:00' },
+  { id:'rd1', title:'READING — My View 4.1', range:'pg. 58~61 읽고 새 단어·어려운 단어 표시', days:[2], tag:'v', due:'2026-09-02', time:'19:00' },
+  { id:'pow1', title:'MATH — Problem of the Week', range:'Movie Magic (영화표 계산) · 금요일 9/4까지', days:[2,3,4], tag:'v', due:'2026-09-04', time:'19:00' },
+  { id:'proj1', title:'MATH — Pick a Project (1개 선택)', range:'행성 비교 or 산 높이 비교 중 택1 · 금요일 9/4까지', days:[2,3,4], tag:'v', due:'2026-09-04', time:'19:00' },
+  { id:'ws3', title:'WORD STUDY #3', range:'단어 14개 · Job 1~3 · 금요일 8:40 제출', days:[2,3,4], tag:'v', due:'2026-09-04', time:'19:00' },
+  { id:'ss2', title:'SOCIAL STUDIES — Regions Project (재도전 가능)', range:'점수 불만족 시 다시 · 발표는 다음주 월요일 Club Time', days:[2,3,4], tag:'v', due:'2026-09-08', time:'19:00' },
   { id:'t3', title:'바이올린 연습', range:'하교 직후', days:[2,4], tag:'g', time:'17:00' },
   { id:'t4', title:'수학과외', range:'5:00 시작', days:[1,5], tag:'g', time:'17:00' },
-  { id:'t7b', title:'MSC 수업 후 숙제', range:'주말 수업 끝나고 · 다음 수업 전까지', days:[1,2,3,4], tag:'g', due:'2026-09-05' },
-  { id:'t5a', title:'수학과외 숙제 (월 과외분)', range:'', days:[1,2,3,4], tag:'g', repeat:true },
-  { id:'t5b', title:'수학과외 숙제 (금 과외분)', range:'', days:[5,6,0], tag:'g', repeat:true },
+  { id:'t7b', title:'MSC 수업 후 숙제', range:'주말 수업 끝나고 · 다음 수업 전까지', days:[1,2,3,4], tag:'g', due:'2026-09-05', pin:true },
+  { id:'t5a', title:'수학과외 숙제 (월 과외분)', range:'', days:[1,2,3,4], tag:'g', repeat:true, pin:true },
+  { id:'t5b', title:'수학과외 숙제 (금 과외분)', range:'', days:[5,6,0], tag:'g', repeat:true, pin:true },
   { id:'t6', title:'MSC 논술 책읽기', range:'매일 조금씩 · 완독까지', days:[1,2,3,4,5,6,0], tag:'g', time:'20:00', repeat:true },
   { id:'t7', title:'MSC 수업 전 숙제', range:'금요일에 · 다음 수업 준비', days:[5], tag:'g', time:'20:00' },
 ];
@@ -473,6 +477,8 @@ function todayTasks(){
   const dueVal = t => t.due ? new Date(t.due+'T00:00:00').getTime() : Infinity;
   const timeVal = t => t.time ? parseInt(t.time.replace(':',''),10) : 9999;
   return list.sort((a,b)=>{
+    // 0) 상단 고정(pin) 먼저
+    if(!!a.pin!==!!b.pin) return a.pin? -1 : 1;
     const au=isUrgent(a), bu=isUrgent(b);
     if(au!==bu) return au? -1 : 1;
     if(au&&bu) return dueVal(a)-dueVal(b);
@@ -620,10 +626,14 @@ function ddayInfo(due){
   const now=new Date(); now.setHours(0,0,0,0);
   const d=new Date(due+'T00:00:00');
   const diff=Math.round((d-now)/86400000);
-  const label = diff===0?'D-DAY' : diff>0?('D-'+diff) : ('D+'+(-diff));
+  let label;
+  if(diff<0) label = '지남';           // 마감 지남
+  else if(diff===0) label = '오늘';     // 오늘 마감
+  else if(diff===1) label = '내일';     // 내일 마감
+  else label = 'D-'+diff;               // 모레 이후만 D-day
   const dueTxt = `${d.getMonth()+1}/${d.getDate()}(${DAYS[d.getDay()]})`;
-  // 색상: 지남/오늘=빨강, 1~2일=주황, 그 이상=보라
-  let cls = diff<0?'dd-over' : diff===0?'dd-today' : diff<=2?'dd-soon' : 'dd-far';
+  // 색상: 지남/오늘=빨강, 내일=주황, 모레이후=보라
+  let cls = diff<0?'dd-over' : diff===0?'dd-today' : diff===1?'dd-soon' : 'dd-far';
   return { label, dueTxt, cls };
 }
 
