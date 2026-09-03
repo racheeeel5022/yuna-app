@@ -352,6 +352,7 @@ async function initFirebase(){
     const app = appMod.initializeApp(firebaseConfig);
     db = fsMod.getFirestore(app);
     fsMod.onSnapshot(fsMod.doc(db,'yuna','data'), (snap)=>{
+      if(justSaved){ setStatus(true,'실시간 연결됨 · 셋이 공유 중'); return; }  // 방금 내가 저장한 건 무시
       if(snap.exists()){ const d=snap.data();
         if(d.tasks) state.tasks=d.tasks; if(d.backlog) state.backlog=d.backlog; if(d.parking) state.parking=d.parking; }
       setStatus(true,'실시간 연결됨 · 셋이 공유 중');
@@ -381,7 +382,10 @@ async function saveChecks(){
   if(db&&fb){ try{ await fb.setDoc(fb.doc(db,'yuna','checks'),{map:state.checks}); }catch(e){ saveLocal(); } }
   else saveLocal();
 }
+let justSaved = false;
 async function saveTasks(){
+  justSaved = true;                          // 저장 직후 서버 덮어쓰기 방지
+  setTimeout(()=>{ justSaved=false; }, 3000);
   if(db&&fb){ try{ await fb.setDoc(fb.doc(db,'yuna','data'),{tasks:state.tasks,backlog:state.backlog,parking:state.parking}); }catch(e){ saveLocal(); } }
   else saveLocal();
   render();
@@ -542,11 +546,18 @@ function cleanupDone(){
   let changed=false;
   state.tasks.forEach(t=>{
     const doneOn = state.checks[t.id];
-    if(doneOn && typeof doneOn==='string'){
-      // 완료한 날로부터 3일 지난 것만 정리 (당일·최근 완료는 유지)
-      const dd=new Date(doneOn+'T00:00:00');
-      const days=Math.round((today-dd)/86400000);
-      if(days>=3){ delete state.checks[t.id]; changed=true; }
+    if(doneOn && typeof doneOn==='string' && !t.repeat){
+      // 마감이 있는 항목: 마감이 5일 이상 지났을 때만 정리 (마감 전엔 절대 안 지움)
+      if(t.due){
+        const due=new Date(t.due+'T00:00:00');
+        const daysAfterDue=Math.round((today-due)/86400000);
+        if(daysAfterDue>=5){ delete state.checks[t.id]; changed=true; }
+      } else {
+        // 마감 없는 항목: 완료한 지 7일 지나면 정리
+        const dd=new Date(doneOn+'T00:00:00');
+        const days=Math.round((today-dd)/86400000);
+        if(days>=7){ delete state.checks[t.id]; changed=true; }
+      }
     }
   });
   if(changed) saveChecks();
