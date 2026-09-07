@@ -292,9 +292,11 @@ const dow = () => new Date().getDay();
 // 기본 데이터 (엄마가 수정하기 전 초기값) --------------------------
 const DEFAULT_TASKS = [
   { id:'t1', title:'MCA 클래스룸 확인', range:'하교 후 스트림에서 오늘 숙제 확인', days:[1,2,3,4,5], tag:'v', time:'16:30' },
+  { id:'ma6', title:'MATH — Lesson 2.6', range:'교과서 pg. 59~60 / 워크북 pg. 21~22', days:[1], tag:'v', due:'2026-09-08', time:'19:00' },
+  { id:'rd3', title:'READING — My View Workbook', range:'pg. 17~20 문제 1~13 · pg.21 문단 쓰기', days:[1], tag:'v', due:'2026-09-08', time:'19:00' },
   { id:'ma5', title:'MATH — Lesson 2.5', range:'교과서 pg. 55~56 / 워크북 pg. 19~20', days:[5], tag:'v', due:'2026-09-08', time:'19:00' },
   { id:'vw1', title:'Vocabulary Workshop (VW)', range:'pg. 21·22·23 · 화요일 9/8까지', days:[5,6,0,1], tag:'v', due:'2026-09-08', time:'19:00' },
-  { id:'gw1', title:'Grammar Workshop (GW)', range:'pg. 208~211 · 월요일까지', days:[5,6,0], tag:'v', due:'2026-09-08', time:'19:00' },
+  { id:'gw1', title:'Grammar Workshop (GW)', range:'pg. 208~211 · 월요일까지', days:[5,6,0,1], tag:'v', due:'2026-09-08', time:'19:00' },
   { id:'auto2', title:'Autobiography 초안 (rough copy)', range:'첫 초안 완성 · 월요일까지', days:[5,6,0], tag:'v', due:'2026-09-08', time:'19:00' },
   { id:'mathproj', title:'⚠️ 밀린 Math 프로젝트', range:'밀림 — 월요일까지 완료', days:[5,6,0], tag:'r', due:'2026-09-08', time:'19:00' },
   { id:'ma4', title:'MATH — Lesson 2.4', range:'교과서 pg. 51~52 / 워크북 pg. 17~18', days:[4], tag:'v', due:'2026-09-04', time:'19:00' },
