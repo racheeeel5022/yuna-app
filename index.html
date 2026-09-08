@@ -405,7 +405,7 @@ window.openEdit=(id)=>{
     <label>시간 (선택 · 예 19:00)</label>
     <input id="e-time" value="${t.time||''}" placeholder="비워도 됨" />
     <div class="m-actions">
-      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-cancel" onclick="renderManage()">취소</button>
       <button class="btn-save" onclick="saveEdit('${id}')">저장</button>
     </div>
     <button onclick="deleteTask('${id}')" style="width:100%;margin-top:10px;background:none;border:0;color:var(--red);font-size:13px;font-weight:700;font-family:inherit;">🗑 이 항목 삭제</button>`;
@@ -417,13 +417,13 @@ window.saveEdit=async(id)=>{
   t.range = document.getElementById('e-range').value.trim();
   const tm = document.getElementById('e-time').value.trim();
   if(tm) t.time=tm; else delete t.time;
-  closeModal(); render(); await saveTasks();
+  render(); await saveTasks(); renderManage();
 };
 window.deleteTask=async(id)=>{
   if(!confirm('이 항목을 삭제할까요?')) return;
   state.tasks = state.tasks.filter(x=>x.id!==id);
   delete state.checks[id];
-  closeModal(); render(); await saveTasks(); await saveChecks();
+  render(); await saveTasks(); await saveChecks(); renderManage();
 };
 
 // 완료 판정: 반복 항목은 '오늘 완료'만 완료로 침(다음날 리셋), 일반은 체크되면 완료
@@ -800,7 +800,7 @@ window.openAdd=()=>{
     <label>분류</label>
     <select id="f-tag"><option value="v">학교/필수</option><option value="g">학원/연습</option><option value="r">밀림</option></select>
     <div class="m-actions">
-      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-cancel" onclick="renderManage()">취소</button>
       <button class="btn-save" onclick="saveNewTask()">추가</button>
     </div>`;
   showModal();
@@ -814,7 +814,7 @@ window.saveNewTask=async()=>{
   state.tasks.push({ id:'t'+Date.now(), title, range:document.getElementById('f-range').value.trim(),
     days:[...editDays], tag:document.getElementById('f-tag').value,
     due:document.getElementById('f-due').value || undefined });
-  closeModal(); await saveTasks();
+  render(); await saveTasks(); renderManage();
 };
 
 window.openBacklogEditor=()=>{
@@ -828,7 +828,7 @@ window.openBacklogEditor=()=>{
       </div>`).join('')}</div>
     <button class="chips" style="border:1px dashed var(--line);background:#fff;border-radius:11px;padding:11px;width:100%;font-weight:700;color:var(--violet-ink)" onclick="addBl()">+ 밀린 과제 추가</button>
     <div class="m-actions">
-      <button class="btn-cancel" onclick="closeModal()">닫기</button>
+      <button class="btn-cancel" onclick="renderManage()">닫기</button>
       <button class="btn-save" onclick="saveBl()">저장</button>
     </div>`;
   showModal();
@@ -836,7 +836,7 @@ window.openBacklogEditor=()=>{
 window.editBl=(i,k,v)=>{ state.backlog[i][k] = k==='pct'? Math.max(0,Math.min(100,parseInt(v)||0)) : v; };
 window.delBl=(i)=>{ state.backlog.splice(i,1); openBacklogEditor(); };
 window.addBl=()=>{ state.backlog.push({id:'b'+Date.now(),title:'새 과제',pct:0}); openBacklogEditor(); };
-window.saveBl=async()=>{ closeModal(); await saveTasks(); };
+window.saveBl=async()=>{ await saveTasks(); renderManage(); };
 
 // 오늘 할 일 카드 롱프레스로 삭제 (엄마 모드) — 간단화: 관리자 안내만
 function showModal(){ document.getElementById('modalBg').classList.add('show'); }
