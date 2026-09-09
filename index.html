@@ -274,19 +274,18 @@ const dow = () => new Date().getDay();
 
 // 기본 데이터 (엄마가 수정하기 전 초기값) --------------------------
 const DEFAULT_TASKS = [
-  { id:'t1', title:'MCA 클래스룸 확인', range:'하교 후 스트림에서 오늘 숙제 확인', days:[1,2,3,4,5], tag:'v', time:'16:30', repeat:true },
   { id:'ma7', title:'MATH — Lesson 2.7', range:'교과서 pg. 63~64 / 워크북 pg. 23~24', days:[2,3], tag:'v', due:'2026-09-09', time:'19:00' },
   { id:'gw3', title:'Grammar Workshop (GW)', range:'pg. 212~215 · 금요일까지', days:[2,3,4,5], tag:'v', due:'2026-09-11', time:'19:00' },
   { id:'ma8', title:'MATH — Topic 2 Practice Assessment & Performance Task', range:'pg. 73~76 (워크북 숙제 없음)', days:[3,4], tag:'v', due:'2026-09-10', time:'19:00' },
   { id:'ss5', title:'SOCIAL STUDIES — Ch.1 Review + Quiz 대비', range:'pg. 38~39 #1~9 · 내일 Lesson 3-4 퀴즈!', days:[3,4], tag:'r', due:'2026-09-10', time:'19:00' },
   { id:'kr3', title:'KOREAN — 국어 숙제', range:'4-1 pg. 63~67 / "씨앗을 부탁해" 요약 (국어공책에 손글씨)', days:[3,4], tag:'v', due:'2026-09-10', time:'19:00' },
-  { id:'t3', title:'바이올린 연습', range:'하교 직후', days:[2,4], tag:'g', time:'17:00' },
+  { id:'t3', title:'바이올린 연습', range:'하교 직후', days:[2,4], tag:'g', time:'17:00', repeat:true },
   { id:'t4', title:'수학과외', range:'5:00 시작', days:[1,5], tag:'g', time:'17:00', repeat:true },
   { id:'t7b', title:'MSC 수업 후 숙제', range:'주말 수업 끝나고 · 다음 수업 전까지', days:[1,2,3,4], tag:'g', due:'2026-09-05', pin:true },
   { id:'t5a', title:'수학과외 숙제 (월 과외분)', range:'4-1) 59~62쪽 · 수업 때 푼 것 포함 전체 다시 풀기', days:[1,2,3,4], tag:'g', repeat:true, pin:true },
   { id:'t5b', title:'수학과외 숙제 (금 과외분)', range:'', days:[5,6,0], tag:'g', repeat:true, pin:true },
   { id:'t6', title:'MSC 논술 책읽기', range:'매일 조금씩 · 완독까지', days:[1,2,3,4,5,6,0], tag:'g', time:'20:00', repeat:true },
-  { id:'t7', title:'MSC 수업 전 숙제', range:'금요일에 · 다음 수업 준비', days:[5], tag:'g', time:'20:00' },
+  { id:'t7', title:'MSC 수업 전 숙제', range:'금요일에 · 다음 수업 준비', days:[5], tag:'g', time:'20:00', repeat:true },
 ];
 const DEFAULT_BACKLOG = [];
 const WEEK = {
@@ -433,7 +432,17 @@ function taskDone(t){
   return true;                                          // 일반: 체크되면 완료
 }
 
-// 오늘 할 일 = 미완료 항목 (오늘 요일 + 마감 지난 미완료 이월) ---------
+// 요일 반복 항목의 "마지막 예정일" 찾기 (오늘 이전, 최대 7일 전까지) ---
+function lastScheduledDate(days, beforeDate){
+  for(let i=1;i<=7;i++){
+    const d=new Date(beforeDate); d.setDate(d.getDate()-i);
+    if((days||[]).includes(d.getDay())) return d;
+  }
+  return null;
+}
+const dateKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+// 오늘 할 일 = 미완료 항목 (오늘 요일 + 마감/예정일 지난 미완료 이월) ---------
 function todayTasks(){
   // 선택한 날짜(없으면 오늘)
   const viewDate = selectedDate ? new Date(selectedDate+'T00:00:00') : new Date();
@@ -445,15 +454,18 @@ function todayTasks(){
     const onDay = (t.days||[]).includes(d);
     if(selectedDate){
       // 특정 날짜 보기: 그날 요일에 있던 항목 전부 (완료 여부 상관없이 그날 기록 표시)
-      return onDay;
+      t._carry=false; return onDay;
     }
-    // 오늘 보기: 완료 제외 + 마감 지난 미완료 이월
+    // 오늘 보기: 완료 제외
     if(isDone(t)) return false;
-    const overdue = t.due && (new Date(t.due+'T00:00:00') < viewDate);
-    return onDay || overdue;
-  });
-  list.forEach(t=>{
-    t._carry = !selectedDate && t.due && (new Date(t.due+'T00:00:00') < viewDate);
+    if(onDay){ t._carry=false; return true; }
+    if(t.due && new Date(t.due+'T00:00:00') < viewDate){ t._carry=true; return true; }   // 마감 지난 미완료 이월
+    if(t.repeat && !t.due){
+      // 마감일 없는 반복 항목: 마지막 예정 요일에 안 했으면 이월
+      const last = lastScheduledDate(t.days, viewDate);
+      if(last && state.checks[t.id]!==dateKey(last)){ t._carry=true; return true; }
+    }
+    return false;
   });
   const isUrgent = t => t.tag==='r' || t._carry;
   const dueVal = t => t.due ? new Date(t.due+'T00:00:00').getTime() : Infinity;
@@ -461,9 +473,12 @@ function todayTasks(){
   return list.sort((a,b)=>{
     // 0) 상단 고정(pin) 먼저
     if(!!a.pin!==!!b.pin) return a.pin? -1 : 1;
+    // 1) 급한 것(태그 밀림/이월) 먼저
     const au=isUrgent(a), bu=isUrgent(b);
     if(au!==bu) return au? -1 : 1;
-    if(au&&bu) return dueVal(a)-dueVal(b);
+    // 2) 마감 임박한 순
+    const dv=dueVal(a)-dueVal(b);
+    if(dv!==0) return dv;
     return timeVal(a)-timeVal(b);
   });
 }
