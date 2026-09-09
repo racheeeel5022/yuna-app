@@ -275,13 +275,11 @@ const dow = () => new Date().getDay();
 // 기본 데이터 (엄마가 수정하기 전 초기값) --------------------------
 const DEFAULT_TASKS = [
   { id:'t1', title:'MCA 클래스룸 확인', range:'하교 후 스트림에서 오늘 숙제 확인', days:[1,2,3,4,5], tag:'v', time:'16:30', repeat:true },
-  { id:'ma6', title:'MATH — Lesson 2.6', range:'교과서 pg. 59~60 / 워크북 pg. 21~22', days:[1,2], tag:'v', due:'2026-09-08', time:'19:00' },
-  { id:'rd3', title:'READING — My View Workbook', range:'pg. 17~20 문제 1~13 · pg.21 문단 쓰기', days:[1,2], tag:'v', due:'2026-09-08', time:'19:00' },
-  { id:'gw2', title:'Grammar Workshop (GW)', range:'pg. 208~211', days:[1,2], tag:'v', due:'2026-09-08', time:'19:00' },
-  { id:'vw2', title:'Vocabulary Workshop (VW)', range:'pg. 21·22·23', days:[1,2], tag:'v', due:'2026-09-08', time:'19:00' },
-  { id:'climate1', title:'SOCIAL STUDIES — Climate Map Project', range:'기후 지도 만들기 · 내일(화 9/8)까지 급함', days:[1,2], tag:'r', due:'2026-09-08', time:'19:00' },
   { id:'ma7', title:'MATH — Lesson 2.7', range:'교과서 pg. 63~64 / 워크북 pg. 23~24', days:[2,3], tag:'v', due:'2026-09-09', time:'19:00' },
   { id:'gw3', title:'Grammar Workshop (GW)', range:'pg. 212~215 · 금요일까지', days:[2,3,4,5], tag:'v', due:'2026-09-11', time:'19:00' },
+  { id:'ma8', title:'MATH — Topic 2 Practice Assessment & Performance Task', range:'pg. 73~76 (워크북 숙제 없음)', days:[3,4], tag:'v', due:'2026-09-10', time:'19:00' },
+  { id:'ss5', title:'SOCIAL STUDIES — Ch.1 Review + Quiz 대비', range:'pg. 38~39 #1~9 · 내일 Lesson 3-4 퀴즈!', days:[3,4], tag:'r', due:'2026-09-10', time:'19:00' },
+  { id:'kr3', title:'KOREAN — 국어 숙제', range:'4-1 pg. 63~67 / "씨앗을 부탁해" 요약 (국어공책에 손글씨)', days:[3,4], tag:'v', due:'2026-09-10', time:'19:00' },
   { id:'t3', title:'바이올린 연습', range:'하교 직후', days:[2,4], tag:'g', time:'17:00' },
   { id:'t4', title:'수학과외', range:'5:00 시작', days:[1,5], tag:'g', time:'17:00', repeat:true },
   { id:'t7b', title:'MSC 수업 후 숙제', range:'주말 수업 끝나고 · 다음 수업 전까지', days:[1,2,3,4], tag:'g', due:'2026-09-05', pin:true },
