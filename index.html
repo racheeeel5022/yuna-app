@@ -467,16 +467,17 @@ function todayTasks(){
     }
     return false;
   });
-  const isUrgent = t => t.tag==='r' || t._carry;
   const dueVal = t => t.due ? new Date(t.due+'T00:00:00').getTime() : Infinity;
   const timeVal = t => t.time ? parseInt(t.time.replace(':',''),10) : 9999;
   return list.sort((a,b)=>{
     // 0) 상단 고정(pin) 먼저
     if(!!a.pin!==!!b.pin) return a.pin? -1 : 1;
-    // 1) 급한 것(태그 밀림/이월) 먼저
-    const au=isUrgent(a), bu=isUrgent(b);
-    if(au!==bu) return au? -1 : 1;
-    // 2) 마감 임박한 순
+    // 1) 지난 숙제(이월) 맨 위
+    if(!!a._carry!==!!b._carry) return a._carry? -1 : 1;
+    // 2) 그다음 급한 것(태그 밀림) 먼저
+    const ar=a.tag==='r', br=b.tag==='r';
+    if(ar!==br) return ar? -1 : 1;
+    // 3) 마감 임박한 순
     const dv=dueVal(a)-dueVal(b);
     if(dv!==0) return dv;
     return timeVal(a)-timeVal(b);
