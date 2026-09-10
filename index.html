@@ -289,6 +289,7 @@ const WEEK = {
 let state = { tasks:[...DEFAULT_TASKS], backlog:[...DEFAULT_BACKLOG], checks:{}, parking:[] };
 let tab = 'today';
 let selectedDate = null;   // 주간 달력에서 고른 날 (null이면 오늘)
+let sectionOpen = { carried:false, fresh:false, routine:false };   // 오늘 할 일 그룹 접기/펼치기 (기본 접힘)
 let db=null, live=false, fb=null;
 
 // Firebase 연결 (설정 있으면 실시간, 없으면 로컬 데모) ----------------
@@ -560,16 +561,25 @@ function renderToday(list){
     el.innerHTML = banner + list.map(cardHTML).join('');
     return;
   }
-  // 오늘 보기: 밀린 일정 → 새로운 일정 → 루틴 일정 세 그룹으로 분류
+  // 오늘 보기: 밀린 일정 → 새로운 일정 → 루틴 일정 세 그룹으로 분류 (접기/펼치기)
   const carried = list.filter(t=> t._carry);
   const routine = list.filter(t=> !t._carry && t.tag==='g');
   const fresh   = list.filter(t=> !t._carry && t.tag!=='g');
+  const section = (key,label,items) => {
+    if(!items.length) return '';
+    const open = !!sectionOpen[key];
+    return `<div class="sec-title" style="cursor:pointer;justify-content:space-between;" onclick="toggleSection('${key}')">
+      <span>${label} (${items.length})</span>
+      <span style="font-size:11px;color:var(--violet-ink);font-weight:700;">${open? '접기 ▲':'펼치기 ▼'}</span>
+    </div>` + (open ? items.map(cardHTML).join('') : '');
+  };
   let html = banner;
-  if(carried.length) html += `<div class="sec-title">⏰ 밀린 일정</div>` + carried.map(cardHTML).join('');
-  if(fresh.length)   html += `<div class="sec-title">🆕 새로운 일정</div>` + fresh.map(cardHTML).join('');
-  if(routine.length) html += `<div class="sec-title">🔁 루틴 일정</div>` + routine.map(cardHTML).join('');
+  html += section('carried','⏰ 밀린 일정', carried);
+  html += section('fresh','🆕 새로운 일정', fresh);
+  html += section('routine','🔁 루틴 일정', routine);
   el.innerHTML = html;
 }
+window.toggleSection=(key)=>{ sectionOpen[key]=!sectionOpen[key]; render(); };
 window.pickToday=()=>{ selectedDate=null; render(); };
 
 function renderDone(){
