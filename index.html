@@ -477,12 +477,12 @@ function todayTasks(){
     if(!!a.pin!==!!b.pin) return a.pin? -1 : 1;
     // 1) 지난 숙제(이월) 맨 위
     if(!!a._carry!==!!b._carry) return a._carry? -1 : 1;
-    // 2) 그다음 급한 것(태그 밀림) 먼저
-    const ar=a.tag==='r', br=b.tag==='r';
-    if(ar!==br) return ar? -1 : 1;
-    // 3) 마감 임박한 순
+    // 2) 마감 임박한 순 (오늘 마감인 것이 며칠 남은 급한 태그보다 항상 위)
     const dv=dueVal(a)-dueVal(b);
     if(dv!==0) return dv;
+    // 3) 마감이 같으면 급한 것(태그 밀림) 먼저
+    const ar=a.tag==='r', br=b.tag==='r';
+    if(ar!==br) return ar? -1 : 1;
     return timeVal(a)-timeVal(b);
   });
 }
