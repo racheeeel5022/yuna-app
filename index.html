@@ -274,11 +274,14 @@ const dow = () => new Date().getDay();
 
 // 기본 데이터 (엄마가 수정하기 전 초기값) --------------------------
 const DEFAULT_TASKS = [
-  { id:'ma7', title:'MATH — Lesson 2.7', range:'교과서 pg. 63~64 / 워크북 pg. 23~24', days:[2,3], tag:'v', due:'2026-09-09', time:'19:00' },
   { id:'gw3', title:'Grammar Workshop (GW)', range:'pg. 212~215 · 금요일까지', days:[2,3,4,5], tag:'v', due:'2026-09-11', time:'19:00' },
   { id:'ma8', title:'MATH — Topic 2 Practice Assessment & Performance Task', range:'pg. 73~76 (워크북 숙제 없음)', days:[3,4], tag:'v', due:'2026-09-10', time:'19:00' },
   { id:'ss5', title:'SOCIAL STUDIES — Ch.1 Review + Quiz 대비', range:'pg. 38~39 #1~9 · 내일 Lesson 3-4 퀴즈!', days:[3,4], tag:'r', due:'2026-09-10', time:'19:00' },
   { id:'kr3', title:'KOREAN — 국어 숙제', range:'4-1 pg. 63~67 / "씨앗을 부탁해" 요약 (국어공책에 손글씨)', days:[3,4], tag:'v', due:'2026-09-10', time:'19:00' },
+  { id:'ws4', title:'WORD STUDY', range:'Weekly Word Study · 내일 아침 8:30까지', days:[4,5], tag:'v', due:'2026-09-11', time:'08:30' },
+  { id:'pow2', title:'MATH — Problem of the Week', range:'Weekly Problem-of-the-Week · 내일 아침 8:30까지', days:[4,5], tag:'v', due:'2026-09-11', time:'08:30' },
+  { id:'sci1', title:'SCIENCE — Topic 4, Lesson 3 Quiz', range:'내일 퀴즈! 복습 필요', days:[4,5], tag:'r', due:'2026-09-11', time:'19:00' },
+  { id:'mtest1', title:'MATH — Topic 2 Test', range:'월요일(9/14) 시험 · 미리 복습하기', days:[4,5,6,0,1], tag:'r', due:'2026-09-14', time:'19:00' },
   { id:'t3', title:'바이올린 연습', range:'하교 직후', days:[2,4], tag:'g', time:'17:00', repeat:true },
   { id:'t4', title:'수학과외', range:'5:00 시작', days:[1,5], tag:'g', time:'17:00', repeat:true },
   { id:'t7b', title:'MSC 수업 후 숙제', range:'주말 수업 끝나고 · 다음 수업 전까지', days:[1,2,3,4], tag:'g', due:'2026-09-05', pin:true },
