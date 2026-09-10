@@ -71,16 +71,7 @@
 
   .viewing-banner{background:var(--violet-soft);color:var(--violet-ink);border-radius:14px;padding:11px 14px;margin-bottom:12px;font-size:13px;font-weight:600;text-align:center;cursor:pointer;}
   .viewing-banner b{font-weight:800;}
-  .ysum{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px 17px;margin-bottom:14px;box-shadow:0 2px 12px rgba(120,90,200,.05);}
-  .ysum-h{font-size:15px;font-weight:800;color:var(--ink);letter-spacing:-.01em;margin-bottom:10px;}
-  .ysum-row{display:flex;gap:8px;margin-bottom:6px;}
-  .ysum-tag{font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;}
-  .ysum-tag.ok{background:var(--done-soft);color:var(--done);}
-  .ysum-tag.no{background:var(--red-soft);color:var(--red);}
   .ysum-sub{font-size:12.5px;font-weight:700;color:var(--ink2);margin:10px 0 4px;}
-  .ysum-item{font-size:13.5px;line-height:1.6;padding-left:2px;}
-  .ysum-item.miss{color:var(--red);}
-  .ysum-item.ok{color:var(--ink2);}
 
   .cheer-pop{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%) scale(.8);z-index:80;
     opacity:0;pointer-events:none;transition:opacity .25s cubic-bezier(.34,1.56,.64,1),transform .25s cubic-bezier(.34,1.56,.64,1);}
@@ -144,10 +135,6 @@
   .slot .t{flex:0 0 82px;color:var(--ink2);font-variant-numeric:tabular-nums;font-size:13px;}
   .slot .a{flex:1;font-weight:600;}
 
-  .backlog .item{align-items:center;}
-  .backlog .pct{flex:0 0 auto;font-size:13px;font-weight:800;color:var(--red);}
-  .mini-bar{height:6px;background:var(--red-soft);border-radius:6px;margin-top:7px;overflow:hidden;}
-  .mini-bar > i{display:block;height:100%;background:var(--red);border-radius:6px;transition:width .4s;}
 
   .empty{text-align:center;color:var(--ink2);font-size:14px;padding:30px 10px;}
   .celebrate{text-align:center;padding:26px 10px;}
@@ -239,13 +226,11 @@
     <button class="on" data-tab="today" onclick="switchTab('today')">오늘 할 일</button>
     <button data-tab="done" onclick="switchTab('done')">완료</button>
     <button data-tab="week" onclick="switchTab('week')">주간 시간표</button>
-    <button data-tab="backlog" onclick="switchTab('backlog')">밀린 과제</button>
   </div>
 
   <div id="view-today"></div>
   <div id="view-done" style="display:none"></div>
   <div id="view-week" style="display:none"></div>
-  <div id="view-backlog" style="display:none"></div>
 
   <div class="status"><span class="dot" id="liveDot"></span><span id="statusText">연결 중…</span></div>
 </div>
@@ -513,7 +498,7 @@ function render(){
   document.getElementById('progTotal').textContent=total;
   document.getElementById('progBar').style.width = total? (doneCount/total*100)+'%':'0%';
 
-  renderToday(list); renderDone(); renderWeek(); renderBacklog();
+  renderToday(list); renderDone(); renderWeek();
   updateParkBadge();
 }
 
@@ -571,39 +556,31 @@ function renderToday(list){
     banner=`<div class="viewing-banner" onclick="pickToday()">📅 ${vd.getMonth()+1}/${vd.getDate()}(${DAYS[vd.getDay()]}) 보는 중 · <b>오늘로 돌아가기</b></div>`;
   }
   if(!list.length){ el.innerHTML=banner+'<div class="celebrate"><div class="em">🎉</div><p>이 날은 할 일이 없어요!</p></div>'; return; }
-  el.innerHTML = banner + list.map(cardHTML).join('');
+  if(selectedDate){
+    el.innerHTML = banner + list.map(cardHTML).join('');
+    return;
+  }
+  // 오늘 보기: 밀린 일정 → 새로운 일정 → 루틴 일정 세 그룹으로 분류
+  const carried = list.filter(t=> t._carry);
+  const routine = list.filter(t=> !t._carry && t.tag==='g');
+  const fresh   = list.filter(t=> !t._carry && t.tag!=='g');
+  let html = banner;
+  if(carried.length) html += `<div class="sec-title">⏰ 밀린 일정</div>` + carried.map(cardHTML).join('');
+  if(fresh.length)   html += `<div class="sec-title">🆕 새로운 일정</div>` + fresh.map(cardHTML).join('');
+  if(routine.length) html += `<div class="sec-title">🔁 루틴 일정</div>` + routine.map(cardHTML).join('');
+  el.innerHTML = html;
 }
 window.pickToday=()=>{ selectedDate=null; render(); };
 
 function renderDone(){
   const el=document.getElementById('view-done');
-  // ── 어제 요약 ──
-  const y=new Date(); y.setDate(y.getDate()-1); y.setHours(0,0,0,0);
-  const yKey=`${y.getFullYear()}-${String(y.getMonth()+1).padStart(2,'0')}-${String(y.getDate()).padStart(2,'0')}`;
-  const yDow=y.getDay();
-  // 어제 해야 했던 항목: 어제 요일에 포함됐던 것
-  const yTasks = state.tasks.filter(t=> (t.days||[]).includes(yDow));
-  const yDone = yTasks.filter(t=> state.checks[t.id]===yKey || (!t.repeat && state.checks[t.id] && state.checks[t.id]<=yKey));
-  const yMissed = yTasks.filter(t=> !yDone.includes(t));
-  const yLabel = `${y.getMonth()+1}/${y.getDate()}(${DAYS[yDow]})`;
-  let yHTML = `<div class="ysum">
-    <div class="ysum-h">📅 어제 (${yLabel}) 요약</div>
-    <div class="ysum-row"><span class="ysum-tag ok">한 것 ${yDone.length}</span><span class="ysum-tag no">안 한 것 ${yMissed.length}</span></div>`;
-  if(yMissed.length){
-    yHTML += `<div class="ysum-sub">못 한 것:</div>` + yMissed.map(t=>`<div class="ysum-item miss">· ${esc(t.title)}</div>`).join('');
-  }
-  if(yDone.length){
-    yHTML += `<div class="ysum-sub">한 것:</div>` + yDone.map(t=>`<div class="ysum-item ok">· ${esc(t.title)}</div>`).join('');
-  }
-  yHTML += `</div>`;
-
   // ── 완료 목록 (전체) ──
   const doneList = state.tasks.filter(t=> taskDone(t));
   let doneHTML;
   if(!doneList.length){ doneHTML='<div class="empty">아직 완료한 숙제가 없어요.</div>'; }
   else {
     doneList.sort((a,b)=> (state.checks[b.id]||'').localeCompare(state.checks[a.id]||''));
-    doneHTML = `<div class="ysum-sub" style="margin-top:16px;">✅ 완료한 숙제</div>` + doneList.map(t=>{
+    doneHTML = `<div class="ysum-sub">✅ 완료한 숙제</div>` + doneList.map(t=>{
       const when = state.checks[t.id];
       const wd = when ? (()=>{ const dt=new Date(when+'T00:00:00'); return `${dt.getMonth()+1}/${dt.getDate()}(${DAYS[dt.getDay()]}) 완료`; })() : '';
       return `<div class="item done" onclick="toggleCheck('${t.id}')">
@@ -615,7 +592,7 @@ function renderDone(){
         </div></div>`;
     }).join('');
   }
-  el.innerHTML = yHTML + doneHTML;
+  el.innerHTML = doneHTML;
 }
 function ddayInfo(due){
   if(!due) return null;
@@ -680,24 +657,11 @@ function renderWeek(){
   el.innerHTML=html;
 }
 
-function renderBacklog(){
-  const el=document.getElementById('view-backlog');
-  if(!state.backlog.length){ el.innerHTML='<div class="empty">밀린 과제가 없어요. 잘하고 있어요!</div>'; return; }
-  el.innerHTML = '<div class="backlog">'+state.backlog.map(b=>`
-    <div class="item">
-      <div class="body">
-        <div class="ttl">${esc(b.title)}</div>
-        <div class="mini-bar"><i style="width:${b.pct||0}%"></i></div>
-      </div>
-      <div class="pct">${b.pct||0}%</div>
-    </div>`).join('')+'</div>';
-}
-
 const esc = s => (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 // ---------- 탭 ----------
 window.switchTab=(t)=>{ tab=t;
-  ['today','done','week','backlog'].forEach(x=>{
+  ['today','done','week'].forEach(x=>{
     document.getElementById('view-'+x).style.display = x===t?'block':'none';
     document.querySelector(`.tabs button[data-tab="${x}"]`).classList.toggle('on',x===t);
   });
@@ -723,7 +687,6 @@ function renderManage(){
     <div class="sec-title">할 일 목록 (탭해서 수정)</div>
     <div>${state.tasks.map(t=>`<div class="admin-row" onclick="openEdit('${t.id}')" style="cursor:pointer;"><div style="flex:1;font-size:14px;font-weight:600;">${esc(t.title)}</div></div>`).join('')}</div>
     <button style="border:1px dashed var(--line);background:#fff;border-radius:11px;padding:11px;width:100%;font-weight:700;color:var(--violet-ink);margin-top:6px;" onclick="openAdd()">+ 할 일 추가</button>
-    <button style="border:1px dashed var(--line);background:#fff;border-radius:11px;padding:11px;width:100%;font-weight:700;color:var(--violet-ink);margin-top:8px;" onclick="openBacklogEditor()">밀린 과제 관리</button>
     <div class="m-actions"><button class="btn-cancel" onclick="closeModal()">닫기</button></div>`;
 }
 
@@ -829,27 +792,6 @@ window.saveNewTask=async()=>{
     due:document.getElementById('f-due').value || undefined });
   render(); await saveTasks(); renderManage();
 };
-
-window.openBacklogEditor=()=>{
-  document.getElementById('modalBox').innerHTML = `
-    <h3>밀린 과제 관리</h3>
-    <div id="bl-list">${state.backlog.map((b,i)=>`
-      <div class="admin-row">
-        <input value="${esc(b.title)}" oninput="editBl(${i},'title',this.value)" />
-        <input type="number" min="0" max="100" value="${b.pct||0}" style="flex:0 0 70px" oninput="editBl(${i},'pct',this.value)" />
-        <button class="x" onclick="delBl(${i})">×</button>
-      </div>`).join('')}</div>
-    <button class="chips" style="border:1px dashed var(--line);background:#fff;border-radius:11px;padding:11px;width:100%;font-weight:700;color:var(--violet-ink)" onclick="addBl()">+ 밀린 과제 추가</button>
-    <div class="m-actions">
-      <button class="btn-cancel" onclick="renderManage()">닫기</button>
-      <button class="btn-save" onclick="saveBl()">저장</button>
-    </div>`;
-  showModal();
-};
-window.editBl=(i,k,v)=>{ state.backlog[i][k] = k==='pct'? Math.max(0,Math.min(100,parseInt(v)||0)) : v; };
-window.delBl=(i)=>{ state.backlog.splice(i,1); openBacklogEditor(); };
-window.addBl=()=>{ state.backlog.push({id:'b'+Date.now(),title:'새 과제',pct:0}); openBacklogEditor(); };
-window.saveBl=async()=>{ await saveTasks(); renderManage(); };
 
 // 오늘 할 일 카드 롱프레스로 삭제 (엄마 모드) — 간단화: 관리자 안내만
 function showModal(){ document.getElementById('modalBg').classList.add('show'); }
