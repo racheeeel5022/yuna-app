@@ -251,12 +251,8 @@ const todayKey = () => { const d=new Date(); return `${d.getFullYear()}-${String
 // 기본 데이터 (엄마가 수정하기 전 초기값) --------------------------
 const DEFAULT_TASKS = [
   { id:'t3', title:'바이올린 연습', range:'하교 직후', days:[2,4], tag:'g', time:'17:00', repeat:true },
-  { id:'t4', title:'수학과외', range:'5:00 시작', days:[1,5], tag:'g', time:'17:00', repeat:true },
-  { id:'t7b', title:'MSC 수업 후 숙제', range:'주말 수업 끝나고 · 다음 수업 전까지', days:[1,2,3,4], tag:'g', due:'2026-09-05', pin:true },
   { id:'t5a', title:'수학과외 숙제 (월 과외분)', range:'4-1) 66~68쪽, 79~84쪽', days:[1,2,3,4], tag:'g', repeat:true, pin:true },
-  { id:'t5b', title:'수학과외 숙제 (금 과외분)', range:'', days:[5,6,0], tag:'g', repeat:true, pin:true },
   { id:'t6', title:'MSC 논술 책읽기', range:'매일 조금씩 · 완독까지', days:[1,2,3,4,5,6,0], tag:'g', time:'20:00', repeat:true },
-  { id:'t7', title:'MSC 수업 전 숙제', range:'금요일에 · 다음 수업 준비', days:[5], tag:'g', time:'20:00', repeat:true },
 ];
 const DEFAULT_BACKLOG = [];
 
