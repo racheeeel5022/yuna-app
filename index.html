@@ -548,7 +548,7 @@ function renderToday(list){
   };
   let html = banner;
   html += section('fresh','🆕 새로운 일정', fresh);
-  html += section('routine','🔁 루틴 일정', routine);
+  html += section('routine','📋 List', routine);
   el.innerHTML = html;
 }
 window.toggleSection=(key)=>{ sectionOpen[key]=!sectionOpen[key]; render(); };
