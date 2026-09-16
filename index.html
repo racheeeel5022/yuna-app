@@ -252,7 +252,7 @@ const todayKey = () => { const d=new Date(); return `${d.getFullYear()}-${String
 const DEFAULT_TASKS = [
   { id:'t3', title:'바이올린 연습', range:'하교 직후', days:[2,4], tag:'g', time:'17:00', repeat:true },
   { id:'t5a', title:'수학과외 숙제 (월 과외분)', range:'4-1) 66~68쪽, 79~84쪽', days:[1,2,3,4], tag:'g', repeat:true, pin:true },
-  { id:'t6', title:'MSC 논술 책읽기', range:'매일 조금씩 · 완독까지', days:[1,2,3,4,5,6,0], tag:'g', time:'20:00', repeat:true },
+  { id:'t6', title:'MSC 논술 책읽기', range:'《그레타와 기린의 언어 1》 · 매일 조금씩 · 완독까지', days:[1,2,3,4,5,6,0], tag:'g', time:'20:00', repeat:true },
 ];
 const DEFAULT_BACKLOG = [];
 
@@ -422,7 +422,7 @@ function todayTasks(){
     if(t.repeat && !t.due){
       // 마감일 없는 반복 항목: 마지막 예정 요일에 안 했으면 이월
       const last = lastScheduledDate(t.days, viewDate);
-      if(last && state.checks[t.id]!==dateKey(last)){ t._carry=true; return true; }
+      if(last && state.checks[t.id]!==dateKey(last)){ t._carry=false; return true; }   // 요일 반복 항목은 놓쳐도 "지난 숙제" 배지 없이 그냥 오늘 항목으로 표시
     }
     return false;
   });
