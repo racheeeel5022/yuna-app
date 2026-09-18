@@ -251,8 +251,11 @@ const todayKey = () => { const d=new Date(); return `${d.getFullYear()}-${String
 // 기본 데이터 (엄마가 수정하기 전 초기값) --------------------------
 const DEFAULT_TASKS = [
   { id:'ma9', title:'MATH — Lesson 3.2', range:'교과서 pg. 87~88 / 워크북 pg. 29~30', days:[4,5], tag:'v', due:'2026-09-18', time:'19:00' },
+  { id:'ma10', title:'MATH — Lesson 3.3', range:'교과서 pg. 91~92 / 워크북 pg. 31~32', days:[0,1,2,3,4,5,6], tag:'v', due:'2026-09-28', time:'19:00' },
   { id:'proj2', title:'MATH — Project (Panther or Giraffe 중 택1)', range:'9/28(월)까지', days:[0,1,2,3,4,5,6], tag:'v', due:'2026-09-28', time:'19:00' },
   { id:'kr4', title:'KOREAN — 국어 숙제', range:'pg. 30~39', days:[4,5], tag:'v', due:'2026-09-18', time:'19:00' },
+  { id:'vw3', title:'Vocabulary Workshop (VW)', range:'pg. 32~35', days:[5,6,0,1], tag:'v', due:'2026-09-21', time:'19:00' },
+  { id:'gw4', title:'Grammar — Appositives Handout', range:'Appositives 유인물', days:[5,6,0,1], tag:'v', due:'2026-09-21', time:'19:00' },
   { id:'t3', title:'바이올린 연습', range:'하교 직후', days:[2,4], tag:'g', time:'17:00', repeat:true },
   { id:'t5a', title:'수학과외 숙제 (월 과외분)', range:'4-1) 66~68쪽, 79~84쪽', days:[1,2,3,4], tag:'g', repeat:true, pin:true },
   { id:'t6', title:'MSC 논술 책읽기', range:'《그레타와 기린의 언어 1》 · 매일 조금씩 · 완독까지', days:[1,2,3,4,5,6,0], tag:'g', time:'20:00', repeat:true },
