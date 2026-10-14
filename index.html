@@ -54,6 +54,14 @@
   .item.done .ttl{color:var(--ink2);text-decoration:line-through;font-weight:600;}
   .item.done .rng{display:none;}
 
+  .notice{background:#fff;border:1px solid var(--line);border-radius:18px;margin-bottom:14px;overflow:hidden;}
+  .notice summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:700;}
+  .notice summary::-webkit-details-marker{display:none;}
+  .notice summary .t{margin-left:auto;font-size:12px;color:var(--ink2);font-weight:600;}
+  .notice summary .arrow{font-size:12px;color:var(--violet-ink);transition:transform .2s;}
+  .notice[open] summary .arrow{transform:rotate(180deg);}
+  .notice .txt{padding:0 16px 16px;font-size:14px;line-height:1.6;color:var(--ink);white-space:pre-line;word-break:break-word;}
+  .notice .txt + .txt{border-top:1px dashed var(--line);padding-top:12px;}
   .done-label{font-size:13px;font-weight:700;color:var(--ink2);margin:22px 4px 4px;}
   .all-done{text-align:center;padding:30px 10px;font-size:17px;font-weight:800;color:var(--violet-ink);}
   .all-done .em{font-size:40px;display:block;margin-bottom:6px;}
@@ -102,6 +110,7 @@
     <div class="count" id="count"></div>
   </div>
 
+  <div id="notice"></div>
   <div id="list"></div>
 
   <div class="foot">
@@ -135,6 +144,8 @@ const SCHOOL_TASKS = [
   {"id": "math1014", "title": "Math (수학)", "range": "Lesson 4.5; WB pg. 51-52", "due": "2026-10-15", "tag": "v"},
   {"id": "social1014", "title": "Social Studies (사회)", "range": "Read pg. 66-67 and highlight/underline new & challenging words.", "due": "2026-10-15", "tag": "v"},
   {"id": "litera1014", "title": "Literacy (리터러시)", "range": "Final Verson of \"An Interesting Animal\" - Due Friday!\nWord Study #8 - due Friday", "due": "2026-10-16", "tag": "v"},
+];
+const NOTICES = [
 ];
 // @auto-end
 
@@ -262,6 +273,15 @@ function render(){
                          : `<div class="all-done"><span class="em">🎉</span>오늘 할 일 끝! 최고야, 윤아!</div>`;
   if(done.length) html += `<div class="done-label">다 한 것</div>` + done.map(t=>card(t,true)).join('');
   document.getElementById('list').innerHTML = html;
+
+  // 오늘 올라온 선생님 공지 (탭하면 펼침)
+  const notes = NOTICES.filter(n=>n.date===todayKey());
+  const box = document.getElementById('notice');
+  const wasOpen = !!box.querySelector('details[open]');
+  box.innerHTML = notes.length ? `<details class="notice" ${wasOpen?'open':''}>
+      <summary>📢 오늘 선생님 공지${notes.length>1?` ${notes.length}개`:''}<span class="t">${notes[notes.length-1].time}</span><span class="arrow">▼</span></summary>
+      ${notes.map(n=>`<div class="txt">${esc(n.text)}</div>`).join('')}
+    </details>` : '';
 }
 
 // ---------- 체크 + 응원 ----------
