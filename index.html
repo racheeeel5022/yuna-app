@@ -42,7 +42,7 @@
   .check svg{width:16px;height:16px;stroke:#fff;stroke-width:3.2;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0;}
   .body{flex:1;min-width:0;}
   .ttl{font-size:16px;font-weight:700;letter-spacing:-.01em;line-height:1.35;}
-  .rng{font-size:13.5px;color:var(--ink2);margin-top:2px;word-break:break-word;}
+  .rng{font-size:13.5px;color:var(--ink2);margin-top:2px;word-break:break-word;white-space:pre-line;}
   .dd{flex:0 0 auto;font-size:12px;font-weight:800;padding:4px 10px;border-radius:20px;white-space:nowrap;}
   .dd.over,.dd.today{background:var(--red-soft);color:var(--red);}
   .dd.soon{background:var(--orange-soft);color:var(--orange);}
@@ -124,23 +124,34 @@ const firebaseConfig = {
 };
 
 // ====================================================================
-//  숙제 목록 — 바꿀 때마다 TASKS_VERSION을 올리면 (예: '2026-10-15a')
-//  모든 기기가 자동으로 이 목록으로 바뀝니다. 완료 체크는 유지됩니다.
-//  - 학교 숙제: due(마감일)까지 계속 보이고, 체크하면 사라짐
-//  - repeat:true: days 요일마다 나타나는 반복 항목 (0=일 … 6=토)
-//  - pin:true: 맨 위 고정
+//  학교 숙제 — auto_update/update_homework.py 가 클래스룸 공지를 읽어 자동으로 채웁니다.
+//  (@auto-start ~ @auto-end 사이와 TASKS_VERSION은 직접 고치지 마세요)
+//  TASKS_VERSION이 Firebase에 저장된 값보다 크면 모든 기기에서 학교 숙제가 이 목록으로 바뀝니다.
+//  반복 항목·앱에서 직접 추가한 항목은 Firebase 쪽이 기준이라 그대로 유지됩니다.
 // ====================================================================
-const TASKS_VERSION = '2026-10-14a';
-const DEFAULT_TASKS = [
-  // 학교 — 클래스룸 10/14(수)
-  { id:'ra1014', title:'October Reading Assessment', range:'클래스룸 과제 (UE2-1)', due:'2026-10-14', tag:'v' },
-  { id:'ma45', title:'MATH — Lesson 4.5', range:'워크북 pg. 51~52', due:'2026-10-15', tag:'v' },
-  { id:'ss1014', title:'SOCIAL STUDIES — 읽기', range:'pg. 66~67 읽고 새 단어에 형광펜/밑줄', due:'2026-10-15', tag:'v' },
-  // 매주 반복
+// @auto-start
+const TASKS_VERSION = 202610141352;
+const SCHOOL_TASKS = [
+  {"id": "math1014", "title": "Math (수학)", "range": "Lesson 4.5; WB pg. 51-52", "due": "2026-10-15", "tag": "v"},
+  {"id": "social1014", "title": "Social Studies (사회)", "range": "Read pg. 66-67 and highlight/underline new & challenging words.", "due": "2026-10-15", "tag": "v"},
+  {"id": "litera1014", "title": "Literacy (리터러시)", "range": "Final Verson of \"An Interesting Animal\" - Due Friday!\nWord Study #8 - due Friday", "due": "2026-10-16", "tag": "v"},
+];
+// @auto-end
+
+// 반복 항목 초기값 (Firebase에 아직 없을 때만 사용, 이후엔 앱 관리 화면에서 수정)
+const ROUTINE_TASKS = [
   { id:'t5a', title:'수학과외 숙제', range:'4-1) 66~68쪽, 79~84쪽', days:[1,2,3,4], tag:'g', repeat:true, pin:true },
   { id:'t3', title:'바이올린 연습', range:'하교 직후', days:[2,4], tag:'g', repeat:true },
   { id:'t6', title:'MSC 논술 책읽기', range:'《그레타와 기린의 언어 1》 · 매일 조금씩', days:[0,1,2,3,4,5,6], tag:'g', repeat:true },
 ];
+const DEFAULT_TASKS = [...SCHOOL_TASKS, ...ROUTINE_TASKS];
+
+// 새 학교 숙제 목록 + 기존 반복/직접추가 항목 합치기
+function upgradeTasks(oldTasks){
+  const keep = oldTasks ? oldTasks.filter(t=>t.repeat||t.manual) : ROUTINE_TASKS;
+  return [...JSON.parse(JSON.stringify(SCHOOL_TASKS)), ...JSON.parse(JSON.stringify(keep))];
+}
+const ver = v => Number(v)||0;   // 예전 '2026-10-14a' 같은 문자열은 0 취급
 // ====================================================================
 
 const DAYS = ["일","월","화","수","목","금","토"];
@@ -156,7 +167,8 @@ let db=null, fb=null;
 function loadLocal(){
   try{
     const s=JSON.parse(localStorage.getItem('yuna_state')||'null');
-    if(s && (s.version||'') >= TASKS_VERSION){ state.tasks=s.tasks||state.tasks; state.parking=s.parking||[]; }
+    if(s){ state.parking=s.parking||[];
+      state.tasks = ver(s.version) >= TASKS_VERSION ? (s.tasks||state.tasks) : upgradeTasks(s.tasks); }
     state.checks=JSON.parse(localStorage.getItem('yuna_checks')||'{}');
   }catch(e){}
 }
@@ -186,9 +198,9 @@ async function initFirebase(){
     db = fb.getFirestore(appMod.initializeApp(firebaseConfig));
     fb.onSnapshot(fb.doc(db,'yuna','data'), snap=>{
       const d = snap.exists()? snap.data() : {};
-      if((d.version||'') < TASKS_VERSION){
-        // 이 파일의 숙제 목록이 더 최신 → 모두에게 반영
-        state.tasks = clone(DEFAULT_TASKS); state.parking = d.parking||[];
+      if(ver(d.version) < TASKS_VERSION){
+        // 이 파일의 학교 숙제가 더 최신 → 모두에게 반영 (반복·직접추가 항목은 유지)
+        state.tasks = upgradeTasks(d.tasks); state.parking = d.parking||[];
         saveTasks();
       } else {
         if(d.tasks) state.tasks=d.tasks;
@@ -314,7 +326,7 @@ window.saveEdit=async id=>{
     const t=state.tasks.find(x=>x.id===id); t.title=title; t.range=range;
     if(dueEl){ if(due) t.due=due; else delete t.due; }
   } else {
-    const t={ id:'t'+Date.now(), title, range, tag:'v' }; if(due) t.due=due;
+    const t={ id:'t'+Date.now(), title, range, tag:'v', manual:true }; if(due) t.due=due;
     state.tasks.push(t);
   }
   render(); await saveTasks(); renderManage();
