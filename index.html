@@ -91,7 +91,7 @@
   .btns button,.add-btn{flex:1;border-radius:12px;padding:13px;font-size:15px;font-weight:800;border:0;font-family:inherit;}
   .btn-save{background:var(--violet);color:#fff;}
   .btn-cancel{background:#f2eefa;color:var(--ink2);}
-  .add-btn{width:100%;margin-top:12px;background:#fff;border:1.5px dashed #d9d2ec;color:var(--violet-ink);}
+  .add-btn{width:100%;margin-top:6px;background:#fff;border:1.5px dashed #d9d2ec;color:var(--violet-ink);}
   .del-btn{width:100%;margin-top:10px;background:none;border:0;color:var(--red);font-size:13px;font-weight:700;font-family:inherit;}
 </style>
 </head>
@@ -112,6 +112,7 @@
 
   <div id="notice"></div>
   <div id="list"></div>
+  <button class="add-btn" onclick="openEdit(null,true)">+ 과외·학원 숙제 추가</button>
 
   <div class="foot">
     <span><span class="dot" id="liveDot"></span><span id="statusText">연결 중…</span></span>
@@ -136,10 +137,10 @@ const firebaseConfig = {
 //  학교 숙제 — auto_update/update_homework.py 가 클래스룸 공지를 읽어 자동으로 채웁니다.
 //  (@auto-start ~ @auto-end 사이와 TASKS_VERSION은 직접 고치지 마세요)
 //  TASKS_VERSION이 Firebase에 저장된 값보다 크면 모든 기기에서 학교 숙제가 이 목록으로 바뀝니다.
-//  반복 항목·앱에서 직접 추가한 항목은 Firebase 쪽이 기준이라 그대로 유지됩니다.
+//  과외·학원 숙제는 앱의 '+ 과외·학원 숙제 추가'로 등록 (Firebase에 저장, 자동 반영과 무관)
 // ====================================================================
 // @auto-start
-const TASKS_VERSION = 202610141352;
+const TASKS_VERSION = 202610141600;
 const SCHOOL_TASKS = [
   {"id": "math1014", "title": "Math (수학)", "range": "Lesson 4.5; WB pg. 51-52", "due": "2026-10-15", "tag": "v"},
   {"id": "social1014", "title": "Social Studies (사회)", "range": "Read pg. 66-67 and highlight/underline new & challenging words.", "due": "2026-10-15", "tag": "v"},
@@ -150,17 +151,11 @@ const NOTICES = [
 ];
 // @auto-end
 
-// 반복 항목 초기값 (Firebase에 아직 없을 때만 사용, 이후엔 앱 관리 화면에서 수정)
-const ROUTINE_TASKS = [
-  { id:'t5a', title:'수학과외 숙제', range:'4-1) 66~68쪽, 79~84쪽', days:[1,2,3,4], tag:'g', repeat:true, pin:true },
-  { id:'t3', title:'바이올린 연습', range:'하교 직후', days:[2,4], tag:'g', repeat:true },
-  { id:'t6', title:'MSC 논술 책읽기', range:'《그레타와 기린의 언어 1》 · 매일 조금씩', days:[0,1,2,3,4,5,6], tag:'g', repeat:true },
-];
-const DEFAULT_TASKS = [...SCHOOL_TASKS, ...ROUTINE_TASKS];
+const DEFAULT_TASKS = [...SCHOOL_TASKS];
 
-// 새 학교 숙제 목록 + 기존 반복/직접추가 항목 합치기
+// 새 학교 숙제 목록 + 엄마가 직접 등록한 과외·학원 숙제(manual) 합치기
 function upgradeTasks(oldTasks){
-  const keep = oldTasks ? oldTasks.filter(t=>t.repeat||t.manual) : ROUTINE_TASKS;
+  const keep = (oldTasks||[]).filter(t=>t.manual);
   return [...JSON.parse(JSON.stringify(SCHOOL_TASKS)), ...JSON.parse(JSON.stringify(keep))];
 }
 const ver = v => Number(v)||0;   // 예전 '2026-10-14a' 같은 문자열은 0 취급
@@ -325,18 +320,23 @@ function renderManage(){
     <button class="add-btn" onclick="openEdit()">+ 할 일 추가</button>
     <div class="btns"><button class="btn-cancel" onclick="closeModal()">닫기</button></div>`;
 }
-window.openEdit=id=>{
+let editFromMain = false;   // 메인 화면에서 바로 추가한 경우 저장 후 창 닫기
+const backFromEdit = () => editFromMain ? closeModal() : renderManage();
+window.cancelEdit = () => backFromEdit();
+window.openEdit=(id,fromMain=false)=>{
+  editFromMain = fromMain;
   const t = id ? state.tasks.find(x=>x.id===id) : {title:'',range:'',due:''};
   document.getElementById('modalBox').innerHTML = `
-    <h3>${id?'✏️ 수정':'➕ 할 일 추가'}</h3>
-    <label>할 일</label><input id="e-title" value="${esc(t.title)}" placeholder="예: MATH — Lesson 4.6" />
-    <label>범위 / 메모</label><input id="e-range" value="${esc(t.range)}" placeholder="예: 워크북 pg. 53~54" />
-    ${t.repeat?'':`<label>마감일</label><input id="e-due" type="date" value="${t.due||''}" />`}
+    <h3>${id?'✏️ 수정':'➕ 과외·학원 숙제 추가'}</h3>
+    <label>할 일</label><input id="e-title" value="${esc(t.title)}" placeholder="예: 수학과외 숙제" />
+    <label>범위 / 메모</label><input id="e-range" value="${esc(t.range)}" placeholder="예: 4-1) 66~68쪽" />
+    ${t.repeat?'':`<label>마감일 <span style="font-weight:500">(비우면 다 할 때까지 계속 보여요)</span></label><input id="e-due" type="date" value="${t.due||''}" />`}
     <div class="btns">
-      <button class="btn-cancel" onclick="renderManage()">취소</button>
+      <button class="btn-cancel" onclick="cancelEdit()">취소</button>
       <button class="btn-save" onclick="saveEdit('${id||''}')">저장</button>
     </div>
     ${id?`<button class="del-btn" onclick="deleteTask('${id}')">🗑 삭제</button>`:''}`;
+  showModal();
 };
 window.saveEdit=async id=>{
   const title=document.getElementById('e-title').value.trim();
@@ -350,7 +350,7 @@ window.saveEdit=async id=>{
     const t={ id:'t'+Date.now(), title, range, tag:'v', manual:true }; if(due) t.due=due;
     state.tasks.push(t);
   }
-  render(); await saveTasks(); renderManage();
+  render(); await saveTasks(); backFromEdit();
 };
 window.deleteTask=async id=>{
   if(!confirm('이 항목을 삭제할까요?')) return;
