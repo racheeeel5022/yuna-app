@@ -134,32 +134,12 @@ const firebaseConfig = {
 };
 
 // ====================================================================
-//  학교 숙제 — auto_update/update_homework.py 가 클래스룸 공지를 읽어 자동으로 채웁니다.
-//  (@auto-start ~ @auto-end 사이와 TASKS_VERSION은 직접 고치지 마세요)
-//  TASKS_VERSION이 Firebase에 저장된 값보다 크면 모든 기기에서 학교 숙제가 이 목록으로 바뀝니다.
-//  과외·학원 숙제는 앱의 '+ 과외·학원 숙제 추가'로 등록 (Firebase에 저장, 자동 반영과 무관)
+//  데이터는 모두 Firebase(yuna/data)에 있습니다. 배포 없이 바로 반영돼요.
+//  - tasks: 학교 숙제(auto_update/update_homework.py가 클래스룸 공지로 채움) + 엄마가 등록한 숙제(manual:true)
+//  - notices: 오늘 선생님 공지 원문 (같은 스크립트가 채움)
+//  예전 앱(배포 안 된 옛 버전)이 학교 숙제를 덮어쓰지 않도록 version은 큰 값으로 고정
 // ====================================================================
-// @auto-start
-const TASKS_VERSION = 202610211600;
-const SCHOOL_TASKS = [
-  {"id": "litera1021", "title": "Literacy (리터러시)", "range": "(for tomorrow!)\nVW pg. 52-53\nGW pg. 8~11\nParent-Teacher conference forms due tomorrow!", "due": "2026-10-22", "tag": "v"},
-  {"id": "math1021", "title": "Math (수학)", "range": "Topic 4 test tomorrow; no math HW tonight!", "due": "2026-10-22", "tag": "v"},
-  {"id": "readin1021", "title": "Reading (읽기)", "range": "My View 4.1 pg. 252, 255", "due": "2026-10-22", "tag": "v"},
-];
-const NOTICES = [
-  {"date": "2026-10-21", "time": "09:11", "text": "Wednesday, October 21st\n\nMATH\n- Topic 4 test tomorrow; no math HW tonight! \n\nREADING\nMy View 4.1 pg. 252, 255\n\nLITERACY (for tomorrow!)\n- VW pg. 52-53\n- GW pg. 8~11\n\nParent-Teacher conference forms due tomorrow!"},
-];
-// @auto-end
-
-const DEFAULT_TASKS = [...SCHOOL_TASKS];
-
-// 새 학교 숙제 목록 + 엄마가 직접 등록한 과외·학원 숙제(manual) 합치기
-function upgradeTasks(oldTasks){
-  const keep = (oldTasks||[]).filter(t=>t.manual);
-  return [...JSON.parse(JSON.stringify(SCHOOL_TASKS)), ...JSON.parse(JSON.stringify(keep))];
-}
-const ver = v => Number(v)||0;   // 예전 '2026-10-14a' 같은 문자열은 0 취급
-// ====================================================================
+const LEGACY_VERSION = 999999999999;
 
 const DAYS = ["일","월","화","수","목","금","토"];
 const dateKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -167,27 +147,26 @@ const todayKey = () => dateKey(new Date());
 const clone = o => JSON.parse(JSON.stringify(o));
 const esc = s => (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-let state = { tasks:clone(DEFAULT_TASKS), checks:{}, parking:[] };
+let state = { tasks:[], notices:[], checks:{}, parking:[] };
 let db=null, fb=null;
 
 // ---------- 저장소 (Firebase 실시간, 실패 시 이 기기에만) ----------
 function loadLocal(){
   try{
     const s=JSON.parse(localStorage.getItem('yuna_state')||'null');
-    if(s){ state.parking=s.parking||[];
-      state.tasks = ver(s.version) >= TASKS_VERSION ? (s.tasks||state.tasks) : upgradeTasks(s.tasks); }
+    if(s){ state.parking=s.parking||[]; state.tasks=s.tasks||[]; state.notices=s.notices||[]; }
     state.checks=JSON.parse(localStorage.getItem('yuna_checks')||'{}');
   }catch(e){}
 }
 function saveLocal(){
   try{
-    localStorage.setItem('yuna_state',JSON.stringify({tasks:state.tasks,parking:state.parking,version:TASKS_VERSION}));
+    localStorage.setItem('yuna_state',JSON.stringify({tasks:state.tasks,parking:state.parking,notices:state.notices}));
     localStorage.setItem('yuna_checks',JSON.stringify(state.checks));
   }catch(e){}
 }
 async function saveTasks(){
   saveLocal();
-  if(db&&fb){ try{ await fb.setDoc(fb.doc(db,'yuna','data'),{tasks:state.tasks,backlog:[],parking:state.parking||[],version:TASKS_VERSION}); }catch(e){} }
+  if(db&&fb){ try{ await fb.setDoc(fb.doc(db,'yuna','data'),{tasks:state.tasks,parking:state.parking||[],version:LEGACY_VERSION},{merge:true}); }catch(e){} }
 }
 async function saveChecks(){
   saveLocal();
@@ -205,14 +184,8 @@ async function initFirebase(){
     db = fb.getFirestore(appMod.initializeApp(firebaseConfig));
     fb.onSnapshot(fb.doc(db,'yuna','data'), snap=>{
       const d = snap.exists()? snap.data() : {};
-      if(ver(d.version) < TASKS_VERSION){
-        // 이 파일의 학교 숙제가 더 최신 → 모두에게 반영 (반복·직접추가 항목은 유지)
-        state.tasks = upgradeTasks(d.tasks); state.parking = d.parking||[];
-        saveTasks();
-      } else {
-        if(d.tasks) state.tasks=d.tasks;
-        if(d.parking) state.parking=d.parking;
-      }
+      state.tasks = d.tasks||[]; state.parking = d.parking||[]; state.notices = d.notices||[];
+      saveLocal();
       setStatus(true,'엄마·아빠와 함께 보는 중'); render();
     }, ()=> setStatus(false,'연결 오류 — 새로고침 해보세요'));
     fb.onSnapshot(fb.doc(db,'yuna','checks'), snap=>{
@@ -271,7 +244,7 @@ function render(){
   document.getElementById('list').innerHTML = html;
 
   // 오늘 올라온 선생님 공지 (탭하면 펼침)
-  const notes = NOTICES.filter(n=>n.date===todayKey());
+  const notes = (state.notices||[]).filter(n=>n.date===todayKey());
   const box = document.getElementById('notice');
   const wasOpen = !!box.querySelector('details[open]');
   box.innerHTML = notes.length ? `<details class="notice" ${wasOpen?'open':''}>
